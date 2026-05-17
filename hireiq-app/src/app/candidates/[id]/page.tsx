@@ -32,6 +32,7 @@ export default function CandidateDetailPage({ params }: { params: Promise<{ id: 
 
   const [candidate, setCandidate] = useState<Candidate | null>(null);
   const [scores, setScores]       = useState<ScoreEntry[]>([]);
+  const [biasFlags, setBiasFlags] = useState<any[]>([]);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState('');
 
@@ -42,6 +43,7 @@ export default function CandidateDetailPage({ params }: { params: Promise<{ id: 
         if (d.error) { setError(d.error); return; }
         setCandidate(d.candidate);
         setScores(d.scores || []);
+        setBiasFlags(d.biasFlags || []);
       })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
@@ -91,6 +93,22 @@ export default function CandidateDetailPage({ params }: { params: Promise<{ id: 
           </div>
         )}
       </div>
+
+      {biasFlags.length > 0 && (
+        <div className="alert alert-error" style={{ marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500, marginBottom: 8, color: '#991B1B' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m10.273 5.009 5.442 7.915a1 1 0 0 1-.82 1.569l-4.524.32a.5.5 0 0 0-.46.331l-3.328 9.389a1 1 0 0 1-1.895-.27l2.882-16.741a1 1 0 0 1 1.637-.622z"/><path d="m22 2-7 7"/><path d="M15 4h5v5"/></svg>
+            Biased Language Detected ({biasFlags.length} flags)
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {biasFlags.map((flag, i) => (
+              <div key={i} style={{ fontSize: 13, background: 'rgba(254, 226, 226, 0.5)', padding: '8px 12px', borderRadius: 4, borderLeft: `3px solid ${flag.severity === 'high' ? '#DC2626' : '#D97706'}` }}>
+                <strong>{flag.flag_text}</strong>: {flag.guidance}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid-2" style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

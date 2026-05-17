@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { parseJDWithAI } from '@/lib/ai';
+import { parseJDWithAI, analyseResumeForBias } from '@/lib/ai';
 
 export const runtime = 'nodejs';
 export const maxDuration = 120;
@@ -62,6 +62,31 @@ export async function POST(req: NextRequest) {
         event_type: 'jd_created',
         event_data: { title: job.title, skills_count: (parsedJD?.required_skills || []).length },
       });
+
+      // ── Detect and save bias flags ───────────────────────────────────────
+      try {
+        const biasResult = await analyseResumeForBias(text);
+        if (biasResult && biasResult.flags && biasResult.flags.length > 0) {
+          const biasInserts = biasResult.flags.map((f: any) => ({
+            job_id: job.id,
+            flag_type: f.flag_type,
+            flag_text: f.flag_text,
+            severity: f.severity,
+            guidance: f.guidance,
+            overall_risk: biasResult.overall_risk || 'low'
+          }));
+          await supabase.from('bias_flags').insert(biasInserts);
+
+          // Log bias event
+          await supabase.from('hiring_events').insert({
+            job_id: job.id,
+            event_type: 'bias_detected',
+            event_data: { flag_count: biasResult.flags.length, overall_risk: biasResult.overall_risk }
+          });
+        }
+      } catch (biasErr) {
+        console.error('Bias detection failed:', biasErr);
+      }
     }
 
     return NextResponse.json({ success: true, job });

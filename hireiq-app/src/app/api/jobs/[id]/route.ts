@@ -10,7 +10,7 @@ export async function GET(
 ) {
   const { id } = await params;
 
-  const [jobRes, scoresRes] = await Promise.all([
+  const [jobRes, scoresRes, biasRes] = await Promise.all([
     supabase
       .from('jobs')
       .select('id, title, department, company, seniority_level, required_skills, preferred_skills, summary, created_at')
@@ -25,6 +25,11 @@ export async function GET(
       `)
       .eq('job_id', id)
       .order('match_score', { ascending: false }),
+    supabase
+      .from('bias_flags')
+      .select('*')
+      .eq('job_id', id)
+      .order('created_at', { ascending: false })
   ]);
 
   if (jobRes.error || !jobRes.data) {
@@ -36,6 +41,7 @@ export async function GET(
   return NextResponse.json({
     job: jobRes.data,
     leaderboard,
+    biasFlags: biasRes.data || [],
     total_scored: leaderboard.length,
     shortlisted: leaderboard.filter((s: any) => s.match_score >= 70).length,
   });
