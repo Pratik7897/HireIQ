@@ -79,7 +79,8 @@ export async function parseResumeWithAI(fileBuffer: Buffer, filename: string): P
   embedding: number[];
 }> {
   const formData = new FormData();
-  formData.append('file', new Blob([fileBuffer]), filename);
+  const arrayBuf = fileBuffer.buffer.slice(fileBuffer.byteOffset, fileBuffer.byteOffset + fileBuffer.byteLength) as ArrayBuffer;
+  formData.append('file', new Blob([arrayBuf]), filename);
 
   const res = await fetch(`${AI_BASE}/api/parse-resume`, {
     method: 'POST',

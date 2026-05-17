@@ -4,8 +4,11 @@ import { supabase } from '@/lib/supabase';
 export const runtime = 'nodejs';
 
 /** GET /api/jobs/[id] — fetch job + candidate leaderboard */
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
 
   const [jobRes, scoresRes] = await Promise.all([
     supabase
@@ -28,10 +31,12 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: 'Job not found' }, { status: 404 });
   }
 
+  const leaderboard = scoresRes.data || [];
+
   return NextResponse.json({
     job: jobRes.data,
-    leaderboard: scoresRes.data || [],
-    total_scored: (scoresRes.data || []).length,
-    shortlisted: (scoresRes.data || []).filter((s: any) => s.match_score >= 70).length,
+    leaderboard,
+    total_scored: leaderboard.length,
+    shortlisted: leaderboard.filter((s: any) => s.match_score >= 70).length,
   });
 }

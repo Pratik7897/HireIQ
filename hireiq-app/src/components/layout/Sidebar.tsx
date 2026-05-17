@@ -97,7 +97,7 @@ export function Sidebar() {
           <Link
             key={item.href}
             href={item.href}
-            className={`nav-item ${pathname === item.href ? 'active' : ''}`}
+            className={`nav-item ${pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href)) ? 'active' : ''}`}
           >
             {Icons[item.icon as keyof typeof Icons]}
             {item.label}
@@ -133,7 +133,7 @@ export function Sidebar() {
         </div>
         {/* Phase indicator */}
         <div style={{ fontSize: 11, color: 'var(--text-muted)', letterSpacing: '0.02em' }}>
-          Free stack · Phase 1
+          Free stack · Phase 2
         </div>
       </div>
     </aside>

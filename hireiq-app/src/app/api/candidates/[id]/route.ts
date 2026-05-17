@@ -5,9 +5,9 @@ export const runtime = 'nodejs';
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
 
   const [candRes, scoresRes, biasRes] = await Promise.all([
     supabase.from('candidates').select('*').eq('id', id).single(),

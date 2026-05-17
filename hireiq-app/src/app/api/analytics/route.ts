@@ -16,7 +16,7 @@ export async function GET() {
     ] = await Promise.all([
       supabase.from('candidates').select('id, created_at, name'),
       supabase.from('jobs').select('id, created_at, title'),
-      supabase.from('candidate_scores').select('match_score, created_at'),
+      supabase.from('candidate_scores').select('match_score, scored_at'),
       supabase.from('bias_flags').select('severity, flag_type, created_at'),
       supabase.from('hiring_events').select('event_type, created_at').order('created_at', { ascending: false }).limit(200),
       supabase.from('hiring_events').select('event_type, created_at, event_data').order('created_at', { ascending: false }).limit(20),

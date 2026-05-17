@@ -74,10 +74,8 @@ export async function POST(req: NextRequest) {
         phone: parsedData?.phone || null,
         location: parsedData?.location || null,
         raw_text: rawText.slice(0, 50000),
-        parsed_json: {
-          ...parsedData,
-          embedding_stored: true, // embedding is large; store separately if needed
-        },
+        parsed_json: parsedData || {},
+        resume_embedding: embedding.length ? embedding : null,
         file_url: fileUrl,
         file_name: file.name,
         total_years_experience: parsedData?.total_years_experience || null,
