@@ -41,9 +41,11 @@ export async function POST(req: NextRequest) {
         department: parsedJD?.department || department || null,
         company: parsedJD?.company || null,
         seniority_level: parsedJD?.seniority_level || null,
+        summary: parsedJD?.summary || null,
         raw_jd_text: text,
         required_skills: parsedJD?.required_skills || [],
         preferred_skills: parsedJD?.preferred_skills || [],
+        jd_embedding: jdEmbedding.length ? jdEmbedding : null,
       })
       .select()
       .single();
@@ -53,7 +55,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to save job' }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, job, embedding: jdEmbedding });
+    // Log hiring event
+    if (job) {
+      await supabase.from('hiring_events').insert({
+        job_id: job.id,
+        event_type: 'jd_created',
+        event_data: { title: job.title, skills_count: (parsedJD?.required_skills || []).length },
+      });
+    }
+
+    return NextResponse.json({ success: true, job });
   } catch (err) {
     console.error('JD upload error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

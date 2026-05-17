@@ -2,15 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Job } from '@/lib/supabase';
+
+interface Job {
+  id: string; title: string; department: string | null; seniority_level: string | null;
+  required_skills: string[]; preferred_skills: string[]; summary: string | null; created_at: string;
+}
 
 export default function JobsPage() {
-  const [jobs, setJobs]     = useState<Job[]>([]);
+  const [jobs, setJobs]       = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch]   = useState('');
 
   useEffect(() => {
-    fetch('/api/upload-jd')
+    fetch('/api/jobs')
       .then(r => r.json())
       .then(d => setJobs(d.jobs || []))
       .finally(() => setLoading(false));
@@ -18,12 +22,9 @@ export default function JobsPage() {
 
   const filtered = jobs.filter(j => {
     const q = search.toLowerCase();
-    if (!q) return true;
-    return (
-      j.title?.toLowerCase().includes(q) ||
+    return !q || j.title?.toLowerCase().includes(q) ||
       j.department?.toLowerCase().includes(q) ||
-      (j.required_skills || []).some(s => s.toLowerCase().includes(q))
-    );
+      (j.required_skills || []).some(s => s.toLowerCase().includes(q));
   });
 
   return (
@@ -33,7 +34,7 @@ export default function JobsPage() {
         <div>
           <h1 className="page-title">Job descriptions</h1>
           <p className="page-desc" style={{ marginBottom: 0 }}>
-            {loading ? 'Loading…' : `${jobs.length} job description${jobs.length !== 1 ? 's' : ''}`}
+            {loading ? 'Loading…' : `${jobs.length} job${jobs.length !== 1 ? 's' : ''}`}
           </p>
         </div>
         <Link href="/upload-jd" className="btn btn-primary btn-sm">Add job description</Link>
@@ -44,70 +45,65 @@ export default function JobsPage() {
           placeholder="Search by title, department, or skill…" style={{ maxWidth: 360 }} />
       </div>
 
-      <div className="table-wrap">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Department</th>
-              <th>Seniority</th>
-              <th>Required skills</th>
-              <th>Added</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              [...Array(4)].map((_, i) => (
-                <tr key={i}>
-                  {[...Array(6)].map((_, j) => (
-                    <td key={j}><div className="skeleton" style={{ height: 14, borderRadius: 3, width: j === 3 ? 200 : 90 }} /></td>
-                  ))}
-                </tr>
-              ))
-            ) : filtered.length === 0 ? (
-              <tr>
-                <td colSpan={6}>
-                  <div className="empty-state">
-                    <p className="empty-state-desc">{search ? 'No jobs match your search.' : 'No job descriptions yet.'}</p>
-                    {!search && <Link href="/upload-jd" className="btn btn-primary btn-sm">Add first job description</Link>}
+      {/* Job cards */}
+      {loading ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="card card-pad">
+              <div className="skeleton" style={{ height: 16, width: 200, marginBottom: 8 }} />
+              <div className="skeleton" style={{ height: 12, width: 300 }} />
+            </div>
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="card">
+          <div className="empty-state">
+            <p className="empty-state-desc">{search ? 'No jobs match your search.' : 'No job descriptions yet.'}</p>
+            {!search && <Link href="/upload-jd" className="btn btn-primary btn-sm">Add first job description</Link>}
+          </div>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {filtered.map(job => (
+            <div key={job.id} className="card card-pad" style={{ cursor: 'default' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <span style={{ fontWeight: 500, fontSize: 14, color: '#374151' }}>{job.title || 'Untitled'}</span>
+                    {job.seniority_level && (
+                      <span className="badge badge-gray">{job.seniority_level}</span>
+                    )}
+                    {job.department && (
+                      <span style={{ fontSize: 12, color: '#9CA3AF' }}>· {job.department}</span>
+                    )}
                   </div>
-                </td>
-              </tr>
-            ) : (
-              filtered.map(job => (
-                <tr key={job.id}>
-                  <td style={{ fontWeight: 500 }}>{job.title || '—'}</td>
-                  <td style={{ color: 'var(--text-secondary)' }}>{job.department || '—'}</td>
-                  <td>
-                    {job.seniority_level
-                      ? <span className="badge badge-gray">{job.seniority_level}</span>
-                      : <span style={{ color: 'var(--text-muted)' }}>—</span>}
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                      {(job.required_skills || []).slice(0, 6).map(s => (
-                        <span key={s} className="skill-chip">{s}</span>
-                      ))}
-                      {(job.required_skills || []).length > 6 && (
-                        <span className="skill-chip" style={{ color: 'var(--text-muted)' }}>
-                          +{(job.required_skills || []).length - 6}
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td style={{ color: 'var(--text-muted)' }}>
+                  {job.summary && (
+                    <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 8, lineHeight: 1.5 }}>
+                      {job.summary.slice(0, 160)}{job.summary.length > 160 ? '…' : ''}
+                    </p>
+                  )}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                    {(job.required_skills || []).slice(0, 8).map(s => (
+                      <span key={s} className="skill-chip">{s}</span>
+                    ))}
+                    {(job.required_skills || []).length > 8 && (
+                      <span className="skill-chip" style={{ color: '#9CA3AF' }}>+{(job.required_skills || []).length - 8}</span>
+                    )}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
+                  <Link href={`/jobs/${job.id}`} className="btn btn-primary btn-sm">
+                    View &amp; score →
+                  </Link>
+                  <span style={{ fontSize: 11, color: '#9CA3AF' }}>
                     {new Date(job.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </td>
-                  <td>
-                    <Link href={`/candidates?job=${job.id}`} className="btn btn-ghost btn-sm">Score candidates</Link>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
