@@ -1,223 +1,446 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { use } from 'react';
+import { fmtDate, fmtRelative, scoreColor, scoreBadgeClass, statusLabel, statusBadgeClass } from '@/lib/utils';
+import { Avatar, ScoreBar, SkillChips, EmptyState, Spinner } from '@/components/ui/Primitives';
 
-interface ScoreEntry {
-  id: string; match_score: number; skill_match_pct: number; semantic_similarity: number;
-  matched_skills: string[]; missing_skills: string[]; bonus_skills: string[];
-  score_reasoning: string; ai_summary?: string; scored_at: string;
-  jobs: { id: string; title: string; department: string | null; seniority_level: string | null } | null;
+interface Experience {
+  company: string; title: string; duration: string; description: string;
 }
+interface Education {
+  degree: string; institution: string; year: string;
+}
+interface ParsedResume {
+  name: string; email: string; phone: string; location: string;
+  skills: string[]; experience: Experience[]; education: Education[];
+  total_years_experience: number; _source?: string;
+}
+
+interface CandidateScore {
+  id: string; job_id: string; job_title?: string; match_score: number;
+  matched_skills: string[]; missing_skills: string[]; score_reasoning: string;
+  ai_summary: string | null; scored_at: string;
+}
+
+interface BiasFlag {
+  id: string; flag_type: string; flag_text: string;
+  severity: 'low' | 'medium' | 'high'; guidance: string;
+}
+
 interface Candidate {
   id: string; name: string | null; email: string | null; phone: string | null;
   location: string | null; total_years_experience: number | null;
-  status: string; created_at: string; parsed_json: any;
+  file_name: string | null; file_url: string | null;
+  parsed_json: ParsedResume | null; created_at: string; status?: string;
 }
 
-function ScoreBar({ score }: { score: number }) {
-  const color = score >= 70 ? '#3B6D11' : score >= 50 ? '#D97706' : '#DC2626';
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <div style={{ width: 100, height: 6, background: '#F3F4F6', borderRadius: 3, overflow: 'hidden' }}>
-        <div style={{ width: `${Math.min(score, 100)}%`, height: '100%', background: color, borderRadius: 3 }} />
-      </div>
-      <span style={{ fontSize: 13, fontWeight: 500, color }}>{score}%</span>
-    </div>
-  );
-}
+type Tab = 'overview' | 'scores' | 'bias' | 'activity';
 
 export default function CandidateDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params); // ✅ Next.js 16 fix
-
+  const { id } = use(params);
   const [candidate, setCandidate] = useState<Candidate | null>(null);
-  const [scores, setScores]       = useState<ScoreEntry[]>([]);
-  const [biasFlags, setBiasFlags] = useState<any[]>([]);
-  const [loading, setLoading]     = useState(true);
-  const [error, setError]         = useState('');
+  const [scores, setScores] = useState<CandidateScore[]>([]);
+  const [bias, setBias] = useState<BiasFlag[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<Tab>('overview');
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/candidates/${id}`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.error) { setError(d.error); return; }
-        setCandidate(d.candidate);
-        setScores(d.scores || []);
-        setBiasFlags(d.biasFlags || []);
-      })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
+    Promise.all([
+      fetch(`/api/candidates/${id}`).then(r => r.json()),
+      fetch(`/api/candidates/${id}/scores`).then(r => r.json()).catch(() => ({ scores: [] })),
+      fetch(`/api/candidates/${id}/bias`).then(r => r.json()).catch(() => ({ flags: [] })),
+    ]).then(([cData, sData, bData]) => {
+      if (cData.error || !cData.candidate) { setNotFound(true); }
+      else {
+        setCandidate(cData.candidate);
+        setScores(sData.scores || []);
+        setBias(bData.flags || []);
+      }
+    }).finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return (
-    <div className="page">
-      <div className="breadcrumb">HireIQ / Candidates</div>
-      {[...Array(4)].map((_, i) => <div key={i} className="skeleton" style={{ height: 14, marginBottom: 10, width: `${60 - i * 10}%` }} />)}
-    </div>
-  );
-  if (error || !candidate) return (
-    <div className="page"><div className="alert alert-error">{error || 'Candidate not found.'}</div></div>
-  );
+  if (loading) {
+    return (
+      <div className="page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 400 }}>
+        <Spinner size={24} />
+      </div>
+    );
+  }
 
-  const parsed: any = candidate.parsed_json || {};
-  const skills: string[] = Array.isArray(parsed.skills) ? parsed.skills : [];
-  const experience: any[] = Array.isArray(parsed.experience) ? parsed.experience : [];
-  const education: any[]  = Array.isArray(parsed.education)  ? parsed.education  : [];
-  const bestScore = scores.length > 0 ? Math.max(...scores.map(s => s.match_score)) : null;
+  if (notFound || !candidate) {
+    return (
+      <div className="page">
+        <EmptyState title="Candidate not found" description="This candidate may have been removed." icon="🔍" />
+      </div>
+    );
+  }
 
-  const statusBadge: Record<string, string> = {
-    new: 'badge-gray', reviewing: 'badge-yellow', shortlisted: 'badge-green', rejected: 'badge-red',
+  const parsed = candidate.parsed_json;
+  const skills = parsed?.skills || [];
+  const experience = parsed?.experience || [];
+  const education = parsed?.education || [];
+  const bestScore = scores.length ? Math.max(...scores.map(s => s.match_score)) : null;
+
+  const SEVERITY_COLORS: Record<string, string> = {
+    high: '#DC2626', medium: '#B45309', low: '#3B6D11',
   };
 
   return (
-    <div className="page" style={{ maxWidth: 900 }}>
+    <div className="page">
+      {/* Breadcrumb */}
       <div className="breadcrumb">
-        <Link href="/candidates" style={{ color: '#9CA3AF', textDecoration: 'none' }}>Candidates</Link> / {candidate.name || 'Unknown'}
+        <Link href="/candidates" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Candidates</Link>
+        {' / '}
+        {candidate.name || 'Unknown'}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
-        <div>
-          <h1 className="page-title">{candidate.name || 'Unknown candidate'}</h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
-            {candidate.email && <span style={{ fontSize: 13, color: '#6B7280' }}>{candidate.email}</span>}
-            {candidate.location && <span style={{ fontSize: 13, color: '#9CA3AF' }}>· {candidate.location}</span>}
-            <span className={`badge ${statusBadge[candidate.status] || 'badge-gray'}`}>{candidate.status || 'new'}</span>
+      {/* Profile header */}
+      <div className="card card-pad" style={{ marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+          <Avatar name={candidate.name} size={52} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 4 }}>
+              <h1 className="page-title" style={{ marginBottom: 0 }}>
+                {candidate.name || 'Unknown candidate'}
+              </h1>
+              {candidate.status && (
+                <span className={`badge ${statusBadgeClass(candidate.status)}`}>
+                  {statusLabel(candidate.status)}
+                </span>
+              )}
+              {bestScore !== null && (
+                <span className={`badge ${scoreBadgeClass(bestScore)}`}>
+                  Best score: {bestScore}%
+                </span>
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13, color: 'var(--text-secondary)' }}>
+              {candidate.email && <span>✉ {candidate.email}</span>}
+              {candidate.phone && <span>📞 {candidate.phone}</span>}
+              {candidate.location && <span>📍 {candidate.location}</span>}
+              {candidate.total_years_experience != null && (
+                <span>🕐 {candidate.total_years_experience}y experience</span>
+              )}
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+            {candidate.file_url && (
+              <a
+                href={candidate.file_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-secondary btn-sm"
+              >
+                ↓ Resume
+              </a>
+            )}
+            <Link href="/candidates" className="btn btn-ghost btn-sm">
+              ← Back
+            </Link>
           </div>
         </div>
-        {bestScore !== null && (
-          <div className="card card-pad" style={{ textAlign: 'center', minWidth: 100, flexShrink: 0 }}>
-            <div className="stat-value" style={{ color: bestScore >= 70 ? '#3B6D11' : bestScore >= 50 ? '#D97706' : '#DC2626' }}>
-              {bestScore}%
-            </div>
-            <div className="stat-label">Best match</div>
-          </div>
-        )}
       </div>
 
-      {biasFlags.length > 0 && (
-        <div className="alert alert-error" style={{ marginBottom: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500, marginBottom: 8, color: '#991B1B' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m10.273 5.009 5.442 7.915a1 1 0 0 1-.82 1.569l-4.524.32a.5.5 0 0 0-.46.331l-3.328 9.389a1 1 0 0 1-1.895-.27l2.882-16.741a1 1 0 0 1 1.637-.622z"/><path d="m22 2-7 7"/><path d="M15 4h5v5"/></svg>
-            Biased Language Detected ({biasFlags.length} flags)
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {biasFlags.map((flag, i) => (
-              <div key={i} style={{ fontSize: 13, background: 'rgba(254, 226, 226, 0.5)', padding: '8px 12px', borderRadius: 4, borderLeft: `3px solid ${flag.severity === 'high' ? '#DC2626' : '#D97706'}` }}>
-                <strong>{flag.flag_text}</strong>: {flag.guidance}
+      {/* Tabs */}
+      <div className="tabs">
+        {(['overview', 'scores', 'bias', 'activity'] as Tab[]).map(t => (
+          <button
+            key={t}
+            className={`tab-item ${tab === t ? 'active' : ''}`}
+            onClick={() => setTab(t)}
+          >
+            {t === 'overview' && 'Overview'}
+            {t === 'scores' && `Scores${scores.length ? ` (${scores.length})` : ''}`}
+            {t === 'bias' && `Bias flags${bias.length ? ` (${bias.length})` : ''}`}
+            {t === 'activity' && 'Activity'}
+          </button>
+        ))}
+      </div>
+
+      {/* ─── Overview tab ─── */}
+      {tab === 'overview' && (
+        <div className="grid-2" style={{ alignItems: 'start' }}>
+          {/* Left column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* Skills */}
+            <div>
+              <div className="section-title">Skills</div>
+              <div className="card card-pad">
+                {skills.length === 0 ? (
+                  <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>No skills extracted.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                    {skills.map(s => (
+                      <span key={s} className="skill-chip">{s}</span>
+                    ))}
+                  </div>
+                )}
               </div>
-            ))}
+            </div>
+
+            {/* Contact / meta */}
+            <div>
+              <div className="section-title">Details</div>
+              <div className="card">
+                <div className="info-row">
+                  <span className="info-label">Email</span>
+                  <span className="info-value">{candidate.email || '—'}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Phone</span>
+                  <span className="info-value">{candidate.phone || '—'}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Location</span>
+                  <span className="info-value">{candidate.location || '—'}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Experience</span>
+                  <span className="info-value">
+                    {candidate.total_years_experience != null
+                      ? `${candidate.total_years_experience} years`
+                      : '—'}
+                  </span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Resume file</span>
+                  <span className="info-value" style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+                    {candidate.file_name || '—'}
+                  </span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Uploaded</span>
+                  <span className="info-value">{fmtDate(candidate.created_at)}</span>
+                </div>
+                {parsed?._source && (
+                  <div className="info-row">
+                    <span className="info-label">Parsed by</span>
+                    <span className="info-value">
+                      <span className="badge badge-gray">{parsed._source}</span>
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* Experience */}
+            <div>
+              <div className="section-title">Experience</div>
+              <div className="card card-pad">
+                {experience.length === 0 ? (
+                  <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>No experience extracted.</p>
+                ) : (
+                  <div className="timeline">
+                    {experience.map((exp, i) => (
+                      <div key={i} className="timeline-item">
+                        <div style={{ position: 'relative' }}>
+                          <div className="timeline-dot" />
+                          {i < experience.length - 1 && <div className="timeline-line" />}
+                        </div>
+                        <div style={{ flex: 1, paddingBottom: 4 }}>
+                          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)' }}>
+                            {exp.title || '—'}
+                          </div>
+                          <div style={{ fontSize: 12, color: 'var(--accent)', marginBottom: 2 }}>
+                            {exp.company}
+                          </div>
+                          {exp.duration && (
+                            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{exp.duration}</div>
+                          )}
+                          {exp.description && (
+                            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4, lineHeight: 1.6 }}>
+                              {exp.description.slice(0, 200)}
+                              {exp.description.length > 200 ? '…' : ''}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Education */}
+            <div>
+              <div className="section-title">Education</div>
+              <div className="card card-pad">
+                {education.length === 0 ? (
+                  <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>No education extracted.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {education.map((edu, i) => (
+                      <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                        <div style={{
+                          width: 32, height: 32, borderRadius: 6, background: 'var(--accent-light)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 14, flexShrink: 0,
+                        }}>
+                          🎓
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 500 }}>{edu.degree || '—'}</div>
+                          <div style={{ fontSize: 12, color: 'var(--accent)' }}>{edu.institution}</div>
+                          {edu.year && (
+                            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{edu.year}</div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      <div className="grid-2" style={{ marginBottom: 20 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div className="card card-pad">
-            <div className="section-title" style={{ marginBottom: 12 }}>Overview</div>
-            {[
-              { label: 'Phone',      value: candidate.phone },
-              { label: 'Location',   value: candidate.location },
-              { label: 'Experience', value: candidate.total_years_experience != null ? `${candidate.total_years_experience} years` : null },
-              { label: 'Uploaded',   value: new Date(candidate.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) },
-            ].filter(r => r.value).map(row => (
-              <div key={row.label} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-                <span style={{ fontSize: 12, color: '#9CA3AF', width: 80, flexShrink: 0 }}>{row.label}</span>
-                <span style={{ fontSize: 13, color: '#374151' }}>{row.value}</span>
-              </div>
-            ))}
-          </div>
-
-          {skills.length > 0 && (
-            <div className="card card-pad">
-              <div className="section-title" style={{ marginBottom: 10 }}>Skills ({skills.length})</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                {skills.map(s => <span key={s} className="skill-chip">{s}</span>)}
-              </div>
+      {/* ─── Scores tab ─── */}
+      {tab === 'scores' && (
+        <div>
+          {scores.length === 0 ? (
+            <div className="card">
+              <EmptyState
+                icon="📊"
+                title="No scores yet"
+                description="Score this candidate against a job description to see match results."
+                action={<Link href="/jobs" className="btn btn-primary btn-sm">View jobs</Link>}
+              />
             </div>
-          )}
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {experience.length > 0 && (
-            <div className="card card-pad">
-              <div className="section-title" style={{ marginBottom: 10 }}>Experience</div>
-              {experience.slice(0, 4).map((e, i) => (
-                <div key={i} style={{ paddingBottom: 10, marginBottom: 10, borderBottom: i < Math.min(experience.length, 4) - 1 ? '1px solid #F3F4F6' : 'none' }}>
-                  <div style={{ fontWeight: 500, fontSize: 13 }}>{e.title || e.company || '—'}</div>
-                  {e.company && e.title && <div style={{ fontSize: 12, color: '#6B7280' }}>{e.company}</div>}
-                  {e.duration && <div style={{ fontSize: 11, color: '#9CA3AF' }}>{e.duration}</div>}
-                  {e.description && <p style={{ fontSize: 12, color: '#6B7280', marginTop: 4, lineHeight: 1.5 }}>{String(e.description).slice(0, 120)}{String(e.description).length > 120 ? '…' : ''}</p>}
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {scores.map(score => (
+                <div key={score.id} className="card card-pad">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 500 }}>
+                        {score.job_title || `Job ${score.job_id.slice(0, 8)}`}
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                        Scored {fmtRelative(score.scored_at)}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ fontSize: 24, fontWeight: 600, color: scoreColor(score.match_score) }}>
+                        {score.match_score}%
+                      </div>
+                      <span className={`badge ${scoreBadgeClass(score.match_score)}`}>
+                        {score.match_score >= 80 ? 'Excellent' : score.match_score >= 60 ? 'Good' : score.match_score >= 40 ? 'Fair' : 'Low'}
+                      </span>
+                    </div>
+                  </div>
+                  <ScoreBar score={score.match_score} height={6} />
+                  {score.score_reasoning && (
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 10, lineHeight: 1.6 }}>
+                      {score.score_reasoning}
+                    </p>
+                  )}
+                  {score.ai_summary && (
+                    <div style={{
+                      background: '#F9FAFB', borderRadius: 6, padding: 12,
+                      marginTop: 10, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.7,
+                    }}>
+                      {score.ai_summary}
+                    </div>
+                  )}
+                  <div className="grid-2" style={{ marginTop: 12, gap: 12 }}>
+                    {score.matched_skills.length > 0 && (
+                      <div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>
+                          ✓ Matched skills ({score.matched_skills.length})
+                        </div>
+                        <SkillChips skills={score.matched_skills} max={8} />
+                      </div>
+                    )}
+                    {score.missing_skills.length > 0 && (
+                      <div>
+                        <div style={{ fontSize: 11, color: '#DC2626', marginBottom: 4 }}>
+                          ✕ Missing skills ({score.missing_skills.length})
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                          {score.missing_skills.slice(0, 8).map(s => (
+                            <span key={s} className="skill-chip" style={{ background: '#FEF2F2', color: '#DC2626' }}>
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           )}
-          {education.length > 0 && (
-            <div className="card card-pad">
-              <div className="section-title" style={{ marginBottom: 10 }}>Education</div>
-              {education.map((e, i) => (
-                <div key={i} style={{ marginBottom: i < education.length - 1 ? 8 : 0 }}>
-                  <div style={{ fontWeight: 500, fontSize: 13 }}>{e.degree || '—'}</div>
-                  {e.institution && <div style={{ fontSize: 12, color: '#6B7280' }}>{e.institution}</div>}
-                  {e.year && <div style={{ fontSize: 11, color: '#9CA3AF' }}>{e.year}</div>}
+        </div>
+      )}
+
+      {/* ─── Bias tab ─── */}
+      {tab === 'bias' && (
+        <div>
+          {bias.length === 0 ? (
+            <div className="card">
+              <EmptyState
+                icon="✅"
+                title="No bias flags"
+                description="No bias indicators were found in this resume."
+              />
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div className="alert alert-warning" style={{ marginBottom: 8 }}>
+                <span>⚠</span>
+                <span>{bias.length} potential bias indicator{bias.length > 1 ? 's' : ''} detected. Review and address before proceeding.</span>
+              </div>
+              {bias.map((flag, i) => (
+                <div key={flag.id || i} className="card card-pad">
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                    <div
+                      style={{
+                        width: 8, height: 8, borderRadius: '50%', flexShrink: 0, marginTop: 5,
+                        background: SEVERITY_COLORS[flag.severity] || '#9CA3AF',
+                      }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                        <span style={{ fontSize: 13, fontWeight: 500 }}>
+                          {flag.flag_type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                        </span>
+                        <span className={`badge ${flag.severity === 'high' ? 'badge-red' : flag.severity === 'medium' ? 'badge-yellow' : 'badge-gray'}`}>
+                          {flag.severity}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>
+                        {flag.flag_text}
+                      </p>
+                      <div style={{
+                        background: '#F9FAFB', borderRadius: 4, padding: '6px 10px',
+                        fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6,
+                      }}>
+                        💡 {flag.guidance}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </div>
-      </div>
+      )}
 
-      <div className="section-title">Match scores across jobs</div>
-      {scores.length === 0 ? (
+      {/* ─── Activity tab ─── */}
+      {tab === 'activity' && (
         <div className="card">
-          <div className="empty-state" style={{ padding: '32px 24px' }}>
-            <p className="empty-state-desc">No scores yet. Open a job and click <strong>Run AI scoring</strong>.</p>
-            <Link href="/jobs" className="btn btn-primary btn-sm">View jobs</Link>
-          </div>
-        </div>
-      ) : (
-        <div className="table-wrap">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Job</th>
-                <th style={{ width: 160 }}>Match score</th>
-                <th>Matched skills</th>
-                <th>Missing skills</th>
-                <th style={{ width: 90 }}>Scored</th>
-                <th style={{ width: 90 }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...scores].sort((a, b) => b.match_score - a.match_score).map(s => {
-                const job = s.jobs;
-                return (
-                  <tr key={s.id}>
-                    <td>
-                      <div style={{ fontWeight: 500 }}>{job?.title || '—'}</div>
-                      {job?.department && <div style={{ fontSize: 11, color: '#9CA3AF' }}>{job.department}</div>}
-                    </td>
-                    <td><ScoreBar score={s.match_score} /></td>
-                    <td>
-                      {(s.matched_skills || []).slice(0, 4).map(sk => (
-                        <span key={sk} className="skill-chip" style={{ background: '#EBF2E3', color: '#3B6D11', marginRight: 3 }}>{sk}</span>
-                      ))}
-                    </td>
-                    <td>
-                      {(s.missing_skills || []).slice(0, 3).map(sk => (
-                        <span key={sk} className="skill-chip" style={{ background: '#FEF2F2', color: '#DC2626', marginRight: 3 }}>{sk}</span>
-                      ))}
-                    </td>
-                    <td style={{ color: '#9CA3AF', fontSize: 11 }}>
-                      {s.scored_at ? new Date(s.scored_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
-                    </td>
-                    <td>
-                      {job && <Link href={`/jobs/${job.id}`} className="btn btn-ghost btn-sm">View job</Link>}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <EmptyState
+            icon="📋"
+            title="Activity log"
+            description="Candidate activity history will appear here."
+          />
         </div>
       )}
     </div>
