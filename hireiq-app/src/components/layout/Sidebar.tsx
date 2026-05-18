@@ -75,11 +75,14 @@ const nav = [
   { href: '/settings',   label: 'Settings',         icon: 'settings',   section: 'settings' },
 ];
 
+import { SearchModal } from '@/components/ui/SearchModal';
+
 interface AIStatus { available: boolean; ollama_available?: boolean }
 
 export function Sidebar() {
   const pathname = usePathname();
   const [ai, setAi] = useState<AIStatus | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     fetch('/api/ai-status', { signal: AbortSignal.timeout(4000) })
@@ -93,12 +96,26 @@ export function Sidebar() {
     return () => clearInterval(t);
   }, []);
 
+  // Cmd+K / Ctrl+K shortcut
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(s => !s);
+      }
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
   const mainItems     = nav.filter(n => n.section === 'main');
   const actionItems   = nav.filter(n => n.section === 'actions');
   const settingsItems = nav.filter(n => n.section === 'settings');
 
   return (
-    <aside className="sidebar">
+    <>
+      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <aside className="sidebar">
       {/* Logo */}
       <div style={{ padding: '16px 14px 12px', borderBottom: '1px solid var(--border)' }}>
         <Link href="/" style={{ textDecoration: 'none' }}>
@@ -109,6 +126,30 @@ export function Sidebar() {
             Hiring platform
           </div>
         </Link>
+      </div>
+
+      {/* Search button */}
+      <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)' }}>
+        <button
+          onClick={() => setSearchOpen(true)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+            padding: '6px 10px', border: '1px solid var(--border-input)', borderRadius: 6,
+            background: '#F9FAFB', cursor: 'pointer', fontSize: 12, color: 'var(--text-muted)',
+            fontFamily: 'inherit', transition: 'border-color 0.1s, background 0.1s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.background = '#FFFFFF'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-input)'; e.currentTarget.style.background = '#F9FAFB'; }}
+          aria-label="Search (Cmd+K)"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <span style={{ flex: 1, textAlign: 'left' }}>Search…</span>
+          <kbd style={{ fontSize: 10, background: 'var(--bg-hover)', border: '1px solid var(--border)', borderRadius: 3, padding: '0 4px', fontFamily: 'monospace' }}>
+            ⌘K
+          </kbd>
+        </button>
       </div>
 
       {/* Navigation */}
@@ -167,9 +208,10 @@ export function Sidebar() {
         </div>
         {/* Phase indicator */}
         <div style={{ fontSize: 11, color: 'var(--text-muted)', letterSpacing: '0.02em' }}>
-          Free stack · Phase 2
+          HireIQ · v4.0
         </div>
       </div>
     </aside>
+    </>
   );
 }
