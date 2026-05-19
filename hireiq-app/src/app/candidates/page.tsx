@@ -20,6 +20,9 @@ export default function CandidatesPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const limit = 20;
+  
+  // Selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -98,6 +101,17 @@ export default function CandidatesPage() {
         <table className="table">
           <thead>
             <tr>
+              <th style={{ width: 40, paddingLeft: 16 }}>
+                <input
+                  type="checkbox"
+                  checked={selectedIds.size > 0 && selectedIds.size === candidates.length}
+                  onChange={(e) => {
+                    if (e.target.checked) setSelectedIds(new Set(candidates.map(c => c.id)));
+                    else setSelectedIds(new Set());
+                  }}
+                  style={{ cursor: 'pointer' }}
+                />
+              </th>
               <th>Candidate</th>
               <th>Skills</th>
               <th style={{ width: 80 }}>Exp</th>
@@ -110,6 +124,7 @@ export default function CandidatesPage() {
             {loading ? (
               [...Array(6)].map((_, i) => (
                 <tr key={i}>
+                  <td style={{ paddingLeft: 16 }}><div className="skeleton" style={{ width: 14, height: 14, borderRadius: 3 }} /></td>
                   <td>
                     <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                       <div className="skeleton" style={{ width: 32, height: 32, borderRadius: '50%' }} />
@@ -128,7 +143,7 @@ export default function CandidatesPage() {
               ))
             ) : candidates.length === 0 ? (
               <tr>
-                <td colSpan={6}>
+                <td colSpan={7}>
                   <div className="empty-state">
                     <p className="empty-state-desc">{search || statusFilter ? 'No candidates match your filters.' : 'No candidates yet. Upload a resume to get started.'}</p>
                     {!search && !statusFilter && <Link href="/upload" className="btn btn-primary btn-sm">Upload resume</Link>}
@@ -139,8 +154,22 @@ export default function CandidatesPage() {
               candidates.map(c => {
                 const skills = (c.parsed_json?.skills || []).slice(0, 4);
                 const yrs    = c.total_years_experience;
+                const isSelected = selectedIds.has(c.id);
                 return (
-                  <tr key={c.id}>
+                  <tr key={c.id} style={{ background: isSelected ? '#F9FAFB' : 'transparent' }}>
+                    <td style={{ paddingLeft: 16 }}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={(e) => {
+                          const newSet = new Set(selectedIds);
+                          if (e.target.checked) newSet.add(c.id);
+                          else newSet.delete(c.id);
+                          setSelectedIds(newSet);
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <Avatar name={c.name} size={32} />
