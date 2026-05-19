@@ -64,7 +64,7 @@ export default function DashboardPage() {
             {loading ? (
               <div style={{ padding: 16 }}>
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: i < 4 ? '1px solid var(--border)' : 'none' }}>
                     <div className="skeleton" style={{ width: 6, height: 6, borderRadius: '50%' }} />
                     <div className="skeleton" style={{ height: 13, flex: 1 }} />
                   </div>
@@ -107,8 +107,8 @@ export default function DashboardPage() {
             {[
               { href: '/upload',     icon: '↑', title: 'Upload resume',    desc: 'Process PDF or DOCX with AI' },
               { href: '/upload-jd',  icon: '＋', title: 'Add job description', desc: 'Parse a JD for scoring' },
-              { href: '/candidates', icon: '⊞', title: 'View candidates',  desc: 'Browse and search pipeline' },
-              { href: '/analytics',  icon: '◑', title: 'Analytics',        desc: 'Live pipeline metrics' },
+              { href: '/pipeline',   icon: '⊞', title: 'Pipeline board',   desc: 'Manage candidate progression' },
+              { href: '/analytics',  icon: '◑', title: 'Analytics',        desc: 'Live hiring metrics' },
             ].map((a, i, arr) => (
               <Link
                 key={a.href}
@@ -138,14 +138,14 @@ export default function DashboardPage() {
           </div>
 
           {/* Pipeline phases */}
-          <div className="section-title" style={{ marginTop: 20 }}>Build plan</div>
+          <div className="section-title" style={{ marginTop: 20 }}>Development Plan</div>
           <div className="card card-pad">
             {[
               { phase: 'Phase 1', label: 'Foundation & upload',   done: true },
-              { phase: 'Phase 2', label: 'AI match scoring',       done: false },
-              { phase: 'Phase 3', label: 'Bias analysis',          done: false },
-              { phase: 'Phase 4', label: 'Analytics dashboard',    done: false },
-              { phase: 'Phase 5', label: 'Auth & access control',  done: false },
+              { phase: 'Phase 2', label: 'AI match scoring',       done: true },
+              { phase: 'Phase 3', label: 'Bias analysis',          done: true },
+              { phase: 'Phase 4', label: 'Pipeline & Analytics',   done: true },
+              { phase: 'Phase 5', label: 'Auth & integrations',    done: false },
             ].map((p, i) => (
               <div
                 key={i}
