@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300; // bulk scoring can take time
@@ -162,7 +163,7 @@ export async function POST(req: NextRequest) {
         }
       } catch (err) {
         errorCount++;
-        console.error(`Error scoring candidate ${candidate.id}:`, err);
+        logger.error(`Error scoring candidate ${candidate.id}:`, err);
       }
     }
 
@@ -179,7 +180,7 @@ export async function POST(req: NextRequest) {
       results,
     });
   } catch (err: any) {
-    console.error('Score-all error:', err);
+    logger.error('Score-all error:', err);
     return NextResponse.json({ error: err.message || 'Scoring failed' }, { status: 500 });
   }
 }

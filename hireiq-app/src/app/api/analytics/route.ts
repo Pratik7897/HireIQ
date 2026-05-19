@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
@@ -97,7 +98,7 @@ export async function GET() {
       recentActivity,
     });
   } catch (err) {
-    console.error('Analytics error:', err);
-    return NextResponse.json({ error: 'Failed to load analytics' }, { status: 500 });
+    logger.error('Analytics error:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

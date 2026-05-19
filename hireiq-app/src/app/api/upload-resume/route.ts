@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 import { parseResumeWithAI, analyseResumeForBias } from '@/lib/ai';
 
 export const runtime = 'nodejs';
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
       rawText = aiResult.raw_text;
       embedding = aiResult.embedding;
     } catch (aiErr) {
-      console.error('AI backend error:', aiErr);
+      logger.error('AI backend error:', aiErr);
       return NextResponse.json(
         {
           error:
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest) {
       .from('resumes')
       .upload(fileName, buffer, { contentType: file.type, upsert: false });
 
-    if (storageErr) console.error('Storage upload error:', storageErr);
+    if (storageErr) logger.error('Storage upload error:', storageErr);
 
     const fileUrl = storageData
       ? supabase.storage.from('resumes').getPublicUrl(fileName).data.publicUrl
@@ -84,7 +85,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (dbError) {
-      console.error('DB insert error:', dbError);
+      logger.error('DB insert error:', dbError);
       return NextResponse.json({ error: 'Failed to save candidate' }, { status: 500 });
     }
 
@@ -122,12 +123,12 @@ export async function POST(req: NextRequest) {
         });
       }
     } catch (biasErr) {
-      console.error('Bias detection failed:', biasErr);
+      logger.error('Bias detection failed:', biasErr);
     }
 
     return NextResponse.json({ success: true, candidate });
   } catch (err) {
-    console.error('Upload route error:', err);
+    logger.error('Upload route error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

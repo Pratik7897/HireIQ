@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 import { parseJDWithAI, analyseResumeForBias } from '@/lib/ai';
 
 export const runtime = 'nodejs';
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
       parsedJD = aiResult.parsed;
       jdEmbedding = aiResult.embedding;
     } catch (aiErr) {
-      console.error('AI backend error for JD:', aiErr);
+      logger.error('AI backend error for JD:', aiErr);
       return NextResponse.json(
         {
           error:
@@ -51,7 +52,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (dbError) {
-      console.error('DB insert error:', dbError);
+      logger.error('DB insert error:', dbError);
       return NextResponse.json({ error: 'Failed to save job' }, { status: 500 });
     }
 
@@ -85,13 +86,13 @@ export async function POST(req: NextRequest) {
           });
         }
       } catch (biasErr) {
-        console.error('Bias detection failed:', biasErr);
+        logger.error('Bias detection failed:', biasErr);
       }
     }
 
     return NextResponse.json({ success: true, job });
   } catch (err) {
-    console.error('JD upload error:', err);
+    logger.error('JD upload error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
