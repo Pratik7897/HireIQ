@@ -6,6 +6,7 @@ import { use } from 'react';
 import { fmtDate, fmtRelative, scoreColor, scoreBadgeClass, statusLabel, statusBadgeClass } from '@/lib/utils';
 import { Avatar, ScoreBar, SkillChips, EmptyState, Spinner, Tooltip } from '@/components/ui/Primitives';
 import { CopyButton } from '@/components/ui/CopyButton';
+import { EmailTemplateModal } from '@/components/ui/EmailTemplateModal';
 
 interface Experience {
   company: string; title: string; duration: string; description: string;
@@ -47,6 +48,7 @@ export default function CandidateDetailPage({ params }: { params: Promise<{ id: 
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>('overview');
   const [notFound, setNotFound] = useState(false);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -129,9 +131,9 @@ export default function CandidateDetailPage({ params }: { params: Promise<{ id: 
           </div>
           <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
             {candidate.email && (
-              <a href={`mailto:${candidate.email}`} className="btn btn-secondary btn-sm">
+              <button onClick={() => setEmailModalOpen(true)} className="btn btn-secondary btn-sm">
                 ✉ Email
-              </a>
+              </button>
             )}
             <Link href={`/interviews?candidate=${candidate.id}`} className="btn btn-primary btn-sm">
               Schedule
@@ -460,6 +462,14 @@ export default function CandidateDetailPage({ params }: { params: Promise<{ id: 
           />
         </div>
       )}
+
+      <EmailTemplateModal
+        open={emailModalOpen}
+        onClose={() => setEmailModalOpen(false)}
+        candidateName={candidate.name || 'Candidate'}
+        candidateEmail={candidate.email || ''}
+        defaultType="interview"
+      />
     </div>
   );
 }
