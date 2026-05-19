@@ -39,6 +39,36 @@ export function Avatar({ name, size = 32 }: AvatarProps) {
   );
 }
 
+interface AvatarGroupProps {
+  names: (string | null | undefined)[];
+  size?: number;
+  max?: number;
+}
+
+export function AvatarGroup({ names, size = 32, max = 4 }: AvatarGroupProps) {
+  const visible = names.slice(0, max);
+  const excess = names.length - visible.length;
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      {visible.map((name, i) => (
+        <div key={i} style={{ marginLeft: i > 0 ? -size * 0.25 : 0, borderRadius: '50%', border: '2px solid white' }}>
+          <Avatar name={name} size={size} />
+        </div>
+      ))}
+      {excess > 0 && (
+        <div style={{
+          marginLeft: -size * 0.25, width: size, height: size, borderRadius: '50%',
+          background: '#F3F4F6', color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: size * 0.35, fontWeight: 500, border: '2px solid white', zIndex: 10
+        }}>
+          +{excess}
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface ScoreBarProps {
   score: number;
   max?: number;
