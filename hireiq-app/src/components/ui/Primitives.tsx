@@ -170,20 +170,33 @@ interface EmptyStateProps {
   title?: string;
   description: string;
   action?: ReactNode;
-  icon?: string;
+  icon?: ReactNode | string;
 }
 
-export function EmptyState({ title, description, action, icon = '📭' }: EmptyStateProps) {
+export function EmptyState({ title, description, action, icon }: EmptyStateProps) {
   return (
-    <div className="empty-state">
-      <div style={{ fontSize: 32, marginBottom: 12 }}>{icon}</div>
+    <div className="empty-state" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 24px', textAlign: 'center' }}>
+      <div style={{ 
+        width: 64, height: 64, borderRadius: '50%', background: '#F3F4F6', color: 'var(--text-muted)', 
+        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, marginBottom: 16,
+        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+      }}>
+        {icon || (
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <line x1="9" y1="3" x2="9" y2="21"/>
+          </svg>
+        )}
+      </div>
       {title && (
-        <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 6 }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>
           {title}
         </div>
       )}
-      <p className="empty-state-desc">{description}</p>
-      {action}
+      <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 24, maxWidth: 360, lineHeight: 1.5 }}>
+        {description}
+      </p>
+      {action && <div>{action}</div>}
     </div>
   );
 }
