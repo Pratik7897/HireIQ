@@ -136,9 +136,10 @@ export function downloadCSV(rows: object[], filename: string) {
 }
 
 /** Truncate text to n chars */
-export function truncate(s: string | null | undefined, n: number): string {
-  if (!s) return '';
-  return s.length > n ? s.slice(0, n) + '…' : s;
+export function truncate(text: string | null | undefined, length: number): string {
+  if (!text) return '';
+  if (text.length <= length) return text;
+  return text.slice(0, length).trim() + '…';
 }
 
 /** Parse a comma-separated skills string into array */
