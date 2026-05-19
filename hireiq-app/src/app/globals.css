@@ -686,7 +686,7 @@ hr { border: none; border-top: 1px solid #E5E7EB; }
   white-space: nowrap;
   z-index: 50;
   pointer-events: none;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(59, 109, 17, 0.15), 0 2px 4px rgba(0, 0, 0, 0.05);
   animation: slideUp 0.15s ease-out;
 }
 
