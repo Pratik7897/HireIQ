@@ -72,28 +72,44 @@ export default function CandidatesPage() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-        <input
-          type="search"
-          value={search}
-          onChange={e => { setSearch(e.target.value); setPage(1); }}
-          placeholder="Search by name, email, or skill…"
-          style={{ width: '100%', maxWidth: 360 }}
-        />
-        <select
-          value={statusFilter}
-          onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
-          style={{ width: 160 }}
-        >
-          <option value="">All statuses</option>
-          <option value="new">New</option>
-          <option value="screening">Screening</option>
-          <option value="interview">Interview</option>
-          <option value="offer">Offer</option>
-          <option value="hired">Hired</option>
-          <option value="rejected">Rejected</option>
-        </select>
+      {/* Filters & Bulk Actions */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <input
+            type="search"
+            value={search}
+            onChange={e => { setSearch(e.target.value); setPage(1); }}
+            placeholder="Search by name, email, or skill…"
+            style={{ width: '100%', maxWidth: 360 }}
+          />
+          <select
+            value={statusFilter}
+            onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
+            style={{ width: 160 }}
+          >
+            <option value="">All statuses</option>
+            <option value="new">New</option>
+            <option value="screening">Screening</option>
+            <option value="interview">Interview</option>
+            <option value="offer">Offer</option>
+            <option value="hired">Hired</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        
+        {selectedIds.size > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, animation: 'fadeIn 0.2s' }}>
+            <span style={{ fontSize: 13, color: 'var(--text-muted)', marginRight: 4 }}>
+              {selectedIds.size} selected
+            </span>
+            <Link href={`/compare?ids=${Array.from(selectedIds).join(',')}`} className="btn btn-secondary btn-sm">
+              ⚖️ Compare
+            </Link>
+            <button className="btn btn-secondary btn-sm" style={{ color: '#DC2626', borderColor: '#FCA5A5' }}>
+              Delete
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Table */}
