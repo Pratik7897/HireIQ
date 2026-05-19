@@ -56,6 +56,10 @@ export default function SettingsPage() {
     slackIntegrationEnabled: false,
   });
 
+  const [advanced, setAdvanced] = useState({
+    mockDataEnabled: true,
+  });
+
   const save = async () => {
     setSaving(true);
     await new Promise(r => setTimeout(r, 800)); // Simulate API call
@@ -73,6 +77,7 @@ export default function SettingsPage() {
     { id: 'notifications', label: 'Notifications' },
     { id: 'retention',     label: 'Data retention' },
     { id: 'api',           label: 'API & integrations' },
+    { id: 'advanced',      label: 'Advanced & System' },
   ];
 
   return (
@@ -385,6 +390,34 @@ export default function SettingsPage() {
               <div style={{ marginTop: 8 }} className="alert alert-info">
                 <span>ℹ</span>
                 <span>Run <code style={{ fontFamily: 'monospace', fontSize: 11 }}>cd python-backend && bash start.sh</code> to start the AI backend.</span>
+              </div>
+            </div>
+          )}
+
+          {/* ─── Advanced ─── */}
+          {activeSection === 'advanced' && (
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 4 }}>Advanced & System Settings</div>
+              <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>
+                Configure global system behavior and development settings.
+              </p>
+
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
+                <input
+                  type="checkbox"
+                  id="mockDataEnabled"
+                  checked={advanced.mockDataEnabled}
+                  onChange={e => setAdvanced(p => ({ ...p, mockDataEnabled: e.target.checked }))}
+                  style={{ marginTop: 2, cursor: 'pointer' }}
+                />
+                <div>
+                  <label htmlFor="mockDataEnabled" style={{ cursor: 'pointer', fontWeight: 500 }}>
+                    Enable Mock Data
+                  </label>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+                    When enabled, pages like Analytics and Inbox will load mock data instead of calling the database. Useful for testing UI components.
+                  </p>
+                </div>
               </div>
             </div>
           )}
