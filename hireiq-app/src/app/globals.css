@@ -496,10 +496,12 @@ label {
 }
 
 .nav-item.active {
-  color: #3B6D11 !important;
-  border-left-color: #3B6D11;
-  background-color: #EBF2E3;
+  color: #3b6d11 !important;
+  border-left-color: #3b6d11;
+  background-color: #ebf2e3;
   font-weight: 500;
+  transform: translateX(2px);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s;
 }
 
 /* ── Divider ── */
