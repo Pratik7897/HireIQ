@@ -80,6 +80,13 @@ hireiq-app/
 
 ## 🛠️ Troubleshooting
 
+### 🐳 Docker Compose AI Backend Setup
+If executing scoring pipelines locally, ensure your Python embedding backend is active. You can spin up a pre-configured docker instance via:
+```bash
+docker compose up -d python-ai-backend
+```
+Ensure it matches the target `AI_BACKEND_URL` environment parameter.
+
 ### ⚠️ Supabase Connection Failures
 Ensure that `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are correct. If you receive network errors, confirm your internet access is uninterrupted and check the Supabase project dashboard to see if the database instance is currently paused or inactive.
 
