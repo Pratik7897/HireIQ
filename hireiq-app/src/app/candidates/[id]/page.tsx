@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { use } from 'react';
 import { fmtDate, fmtRelative, scoreColor, scoreBadgeClass, statusLabel, statusBadgeClass } from '@/lib/utils';
-import { Avatar, ScoreBar, SkillChips, EmptyState, Spinner } from '@/components/ui/Primitives';
+import { Avatar, ScoreBar, SkillChips, EmptyState, Spinner, Tooltip } from '@/components/ui/Primitives';
 
 interface Experience {
   company: string; title: string; duration: string; description: string;
@@ -365,9 +365,11 @@ export default function CandidateDetailPage({ params }: { params: Promise<{ id: 
                         </div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
                           {score.missing_skills.slice(0, 8).map(s => (
-                            <span key={s} className="skill-chip" style={{ background: '#FEF2F2', color: '#DC2626' }}>
-                              {s}
-                            </span>
+                            <Tooltip key={s} text="Required skill missing from resume">
+                              <span className="skill-chip" style={{ background: '#FEF2F2', color: '#DC2626', cursor: 'help' }}>
+                                {s}
+                              </span>
+                            </Tooltip>
                           ))}
                         </div>
                       </div>
