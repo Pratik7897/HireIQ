@@ -78,6 +78,13 @@ hireiq-app/
 
 ---
 
+## 🛠️ Troubleshooting
+
+### ⚠️ Supabase Connection Failures
+Ensure that `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are correct. If you receive network errors, confirm your internet access is uninterrupted and check the Supabase project dashboard to see if the database instance is currently paused or inactive.
+
+---
+
 ## 📄 License
 
 This software is developed for internal screening and recruitment automation. All rights reserved.
