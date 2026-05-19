@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { use } from 'react';
 import { fmtDate, fmtRelative, scoreColor, scoreBadgeClass, statusLabel, statusBadgeClass } from '@/lib/utils';
 import { Avatar, ScoreBar, SkillChips, EmptyState, Spinner, Tooltip } from '@/components/ui/Primitives';
+import { CopyButton } from '@/components/ui/CopyButton';
 
 interface Experience {
   company: string; title: string; duration: string; description: string;
@@ -187,11 +188,17 @@ export default function CandidateDetailPage({ params }: { params: Promise<{ id: 
               <div className="card">
                 <div className="info-row">
                   <span className="info-label">Email</span>
-                  <span className="info-value">{candidate.email || '—'}</span>
+                  <span className="info-value" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    {candidate.email || '—'}
+                    {candidate.email && <CopyButton text={candidate.email} label="Email" />}
+                  </span>
                 </div>
                 <div className="info-row">
                   <span className="info-label">Phone</span>
-                  <span className="info-value">{candidate.phone || '—'}</span>
+                  <span className="info-value" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    {candidate.phone || '—'}
+                    {candidate.phone && <CopyButton text={candidate.phone} label="Phone number" />}
+                  </span>
                 </div>
                 <div className="info-row">
                   <span className="info-label">Location</span>
