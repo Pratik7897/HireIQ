@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { initials, nameToHue } from '@/lib/utils';
 
 interface AvatarProps {
@@ -76,16 +76,26 @@ interface ScoreBarProps {
   animate?: boolean;
 }
 
-export function ScoreBar({ score, max = 100, height = 4, animate = true }: ScoreBarProps) {
+export function ScoreBar({ score, max = 100, height = 6, animate = true }: ScoreBarProps) {
+  const [width, setWidth] = useState(0);
   const pct = Math.min(100, Math.max(0, (score / max) * 100));
-  const color = score >= 80 ? '#22c55e' : score >= 60 ? '#3B6D11' : score >= 40 ? '#eab308' : '#ef4444';
+  const color = pct >= 80 ? '#3B6D11' : pct >= 50 ? '#F59E0B' : '#DC2626';
+
+  useEffect(() => {
+    if (animate) {
+      const timer = setTimeout(() => setWidth(pct), 50);
+      return () => clearTimeout(timer);
+    } else {
+      setWidth(pct);
+    }
+  }, [pct, animate]);
 
   return (
     <div
       style={{
         height,
-        background: '#F3F4F6',
-        borderRadius: height,
+        background: '#E5E7EB',
+        borderRadius: height / 2,
         overflow: 'hidden',
         width: '100%',
       }}
@@ -97,10 +107,10 @@ export function ScoreBar({ score, max = 100, height = 4, animate = true }: Score
       <div
         style={{
           height: '100%',
-          width: `${pct}%`,
+          width: `${width}%`,
           background: color,
-          borderRadius: height,
-          transition: animate ? 'width 0.6s ease' : 'none',
+          borderRadius: height / 2,
+          transition: animate ? 'width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)' : 'none',
         }}
       />
     </div>
