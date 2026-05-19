@@ -36,6 +36,15 @@ export default function ComparePage() {
             <p className="page-desc" style={{ marginBottom: 0 }}>Side-by-side comparison of shortlisted applicants</p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                alert('Compare link copied to clipboard!');
+              }}
+            >
+              🔗 Share shortlist
+            </button>
             <Link href="/candidates" className="btn btn-secondary btn-sm">
               Add candidate
             </Link>
