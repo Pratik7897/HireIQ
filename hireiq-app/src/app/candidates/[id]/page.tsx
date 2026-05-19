@@ -128,6 +128,11 @@ export default function CandidateDetailPage({ params }: { params: Promise<{ id: 
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+            {candidate.email && (
+              <a href={`mailto:${candidate.email}`} className="btn btn-secondary btn-sm">
+                ✉ Email
+              </a>
+            )}
             {candidate.file_url && (
               <a
                 href={candidate.file_url}
