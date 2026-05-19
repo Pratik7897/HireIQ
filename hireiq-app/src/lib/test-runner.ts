@@ -3,7 +3,7 @@
  * A lightweight test suite executing unit tests for shared recruitment utility functions.
  */
 
-import { fmtDate, clamp, scoreColor, initials, fmtRelative, seniorityLabel, statusLabel, statusBadgeClass } from './utils';
+import { fmtDate, clamp, scoreColor, initials, fmtRelative, seniorityLabel, statusLabel, statusBadgeClass, nameToHue, truncate, parseSkillsText } from './utils';
 
 let passed = 0;
 let failed = 0;
@@ -56,6 +56,19 @@ assert('statusLabel formats screening correctly', statusLabel('screening') === '
 assert('statusLabel returns fallback for unknown key', statusLabel('unknown_key') === 'unknown_key');
 assert('statusBadgeClass returns red badge for rejected', statusBadgeClass('rejected') === 'badge-red');
 assert('statusBadgeClass returns gray badge for default fallback', statusBadgeClass('ghost_status') === 'badge-gray');
+
+// 7. nameToHue tests
+assert('nameToHue returns 200 for empty or undefined input', nameToHue(null) === 200);
+assert('nameToHue generates a deterministic hue between 0 and 360', nameToHue('Alice') >= 0 && nameToHue('Alice') <= 360);
+
+// 8. truncate tests
+assert('truncate preserves text under length threshold', truncate('Hello', 10) === 'Hello');
+assert('truncate appends ellipsis when truncating', truncate('Hello World', 5) === 'Hello…');
+assert('truncate handles null gracefully', truncate(null, 5) === '');
+
+// 9. parseSkillsText tests
+assert('parseSkillsText parses comma-separated lists correctly', parseSkillsText('React, TypeScript, Node').length === 3);
+assert('parseSkillsText handles semicolon and newline separators', parseSkillsText('React; Go\nPython').length === 3);
 
 console.log(`\n🎉 Test Run Complete: ${passed} passed, ${failed} failed.`);
 
