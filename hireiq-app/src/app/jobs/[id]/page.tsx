@@ -2,6 +2,7 @@
 
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
+import { Tooltip } from '@/components/ui/Primitives';
 
 interface ScoreEntry {
   id: string; match_score: number; skill_match_pct: number;
@@ -215,7 +216,9 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
                       </td>
                       <td>
                         {(entry.missing_skills || []).slice(0, 3).map(s => (
-                          <span key={s} className="skill-chip" style={{ background: '#FEF2F2', color: '#DC2626', marginRight: 3 }}>{s}</span>
+                          <Tooltip key={s} text="Required but missing from resume">
+                            <span className="skill-chip" style={{ background: '#FEF2F2', color: '#DC2626', marginRight: 3, cursor: 'help' }}>{s}</span>
+                          </Tooltip>
                         ))}
                       </td>
                       <td>
