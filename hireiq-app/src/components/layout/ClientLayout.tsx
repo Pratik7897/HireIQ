@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { ToastProvider } from '@/components/ui/Toast';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { KeyboardShortcuts } from '@/components/ui/KeyboardShortcuts';
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -51,6 +52,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
           <ErrorBoundary>
             {children}
           </ErrorBoundary>
+          <KeyboardShortcuts />
         </main>
       </div>
     </ToastProvider>
