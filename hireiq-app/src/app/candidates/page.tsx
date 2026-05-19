@@ -213,11 +213,12 @@ export default function CandidatesPage() {
               ))
             ) : candidates.length === 0 ? (
               <tr>
-                <td colSpan={7}>
-                  <div className="empty-state">
-                    <p className="empty-state-desc">{search || statusFilter ? 'No candidates match your filters.' : 'No candidates yet. Upload a resume to get started.'}</p>
-                    {!search && !statusFilter && <Link href="/upload" className="btn btn-primary btn-sm">Upload resume</Link>}
-                  </div>
+                <td colSpan={7} style={{ padding: 0 }}>
+                  <EmptyState
+                    title={search || statusFilter ? "No candidates found" : "No Candidates Yet"}
+                    description={search || statusFilter ? "No candidates matched your filter or search query. Try adjusting your search." : "Upload resumes in PDF or Word format to automatically extract skills, experience, and contact details."}
+                    action={!search && !statusFilter ? <Link href="/upload" className="btn btn-primary btn-sm">Upload first resume</Link> : undefined}
+                  />
                 </td>
               </tr>
             ) : (

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { EmptyState } from '@/components/ui/Primitives';
 
 interface Job {
   id: string; title: string; department: string | null; seniority_level: string | null;
@@ -57,10 +58,11 @@ export default function JobsPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="card">
-          <div className="empty-state">
-            <p className="empty-state-desc">{search ? 'No jobs match your search.' : 'No job descriptions yet.'}</p>
-            {!search && <Link href="/upload-jd" className="btn btn-primary btn-sm">Add first job description</Link>}
-          </div>
+          <EmptyState
+            title={search ? "No search matches" : "No Job Descriptions"}
+            description={search ? "We couldn't find any job descriptions matching your search criteria. Try a different query." : "Upload and parse job descriptions (JD) to automatically score, match, and shortlist candidates with AI."}
+            action={!search ? <Link href="/upload-jd" className="btn btn-primary btn-sm">Add first job description</Link> : undefined}
+          />
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
