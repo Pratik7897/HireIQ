@@ -248,17 +248,9 @@ export function Tooltip({ children, text }: { children: ReactNode; text: string 
     >
       {children}
       {show && text && (
-        <div style={{
-          position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)',
-          marginBottom: 8, padding: '4px 8px', background: '#1F2937', color: '#fff',
-          fontSize: 11, borderRadius: 4, whiteSpace: 'nowrap', zIndex: 50,
-          pointerEvents: 'none', animation: 'slideUp 0.1s ease',
-        }}>
+        <div className="custom-tooltip">
           {text}
-          <div style={{
-            position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)',
-            borderWidth: 4, borderStyle: 'solid', borderColor: '#1F2937 transparent transparent transparent'
-          }} />
+          <div className="custom-tooltip-arrow" />
         </div>
       )}
     </div>
