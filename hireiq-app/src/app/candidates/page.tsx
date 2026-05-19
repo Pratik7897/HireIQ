@@ -24,6 +24,40 @@ export default function CandidatesPage() {
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
+  const handleBatchDelete = async () => {
+    if (!confirm(`Are you sure you want to delete ${selectedIds.size} candidates?`)) return;
+    try {
+      const r = await fetch('/api/candidates/batch', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: Array.from(selectedIds) }),
+      });
+      if (r.ok) {
+        setSelectedIds(new Set());
+        load();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleBatchStatus = async (status: string) => {
+    if (!status) return;
+    try {
+      const r = await fetch('/api/candidates/batch', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: Array.from(selectedIds), status }),
+      });
+      if (r.ok) {
+        setSelectedIds(new Set());
+        load();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const load = useCallback(async () => {
     setLoading(true);
     const offset = (page - 1) * limit;
@@ -105,7 +139,27 @@ export default function CandidatesPage() {
             <Link href={`/compare?ids=${Array.from(selectedIds).join(',')}`} className="btn btn-secondary btn-sm">
               ⚖️ Compare
             </Link>
-            <button className="btn btn-secondary btn-sm" style={{ color: '#DC2626', borderColor: '#FCA5A5' }}>
+            <select
+              onChange={e => {
+                handleBatchStatus(e.target.value);
+                e.target.value = '';
+              }}
+              style={{ width: 140, height: 32, padding: '0 8px', fontSize: 13 }}
+              defaultValue=""
+            >
+              <option value="" disabled>Update status...</option>
+              <option value="new">New</option>
+              <option value="screening">Screening</option>
+              <option value="interview">Interview</option>
+              <option value="offer">Offer</option>
+              <option value="hired">Hired</option>
+              <option value="rejected">Rejected</option>
+            </select>
+            <button 
+              onClick={handleBatchDelete}
+              className="btn btn-secondary btn-sm" 
+              style={{ color: '#DC2626', borderColor: '#FCA5A5' }}
+            >
               Delete
             </button>
           </div>
