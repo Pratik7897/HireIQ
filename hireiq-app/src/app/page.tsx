@@ -100,8 +100,49 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Quick links */}
-        <div>
+        {/* Column 2 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {/* Onboarding Checklist */}
+          {stats && stats.totalJobs < 5 && (
+            <div>
+              <div className="section-title">Getting Started</div>
+              <div className="card">
+                <div style={{ padding: '16px 16px 0' }}>
+                  <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 12 }}>
+                    Complete these steps to set up your workspace:
+                  </div>
+                </div>
+                {[
+                  { id: '1', title: 'Add your first job description', done: stats.totalJobs > 0, link: '/upload-jd' },
+                  { id: '2', title: 'Upload candidate resumes', done: stats.totalCandidates > 0, link: '/upload' },
+                  { id: '3', title: 'Review your pipeline', done: false, link: '/pipeline' },
+                  { id: '4', title: 'Configure scoring weights', done: false, link: '/settings' },
+                ].map((step, i, arr) => (
+                  <div key={step.id} style={{
+                    display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
+                    borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none'
+                  }}>
+                    <div style={{
+                      width: 20, height: 20, borderRadius: '50%', border: step.done ? 'none' : '1px solid var(--border)',
+                      background: step.done ? '#10B981' : 'transparent', color: 'white',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12
+                    }}>
+                      {step.done && '✓'}
+                    </div>
+                    <div style={{ flex: 1, fontSize: 13, color: step.done ? 'var(--text-muted)' : 'var(--text-primary)', textDecoration: step.done ? 'line-through' : 'none' }}>
+                      {step.title}
+                    </div>
+                    {!step.done && (
+                      <Link href={step.link} className="btn btn-secondary btn-sm" style={{ padding: '4px 8px', fontSize: 11 }}>Start</Link>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Quick links */}
+          <div>
           <div className="section-title">Quick actions</div>
           <div className="card" style={{ padding: 0 }}>
             {[
