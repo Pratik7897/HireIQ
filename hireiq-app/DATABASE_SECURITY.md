@@ -99,4 +99,5 @@ ALTER TABLE bias_checks ENABLE ROW LEVEL SECURITY;
 
 *   **🚫 Never Expose API Keys**: Always run Gemini scoring prompts server-side in API routes. Never expose `GEMINI_API_KEY` to the browser client.
 *   **🧩 Bias Anonymization**: When calling Gemini to compute the structured `bias_checks` database entries, candidate names, emails, and phone numbers are stripped to preserve objective auditing.
+*   **🔑 JWT & Session Invalidation**: Supabase access tokens are valid for 1 hour. Refresh tokens are used inside Next.js SSR to acquire new tokens. When logging out, sessions are globally invalidated in the Auth schema to prevent replay attacks.
 *   **🛡️ Next.js Middleware**: Session validation runs inside Next.js Edge Middleware to intercept unauthorized API hooks before resolving Route Handler functions.
