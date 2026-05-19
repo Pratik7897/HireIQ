@@ -136,6 +136,9 @@ body {
   .page {
     padding: 20px 16px 40px;
   }
+  input, select, textarea, .btn {
+    border-radius: 6px !important;
+  }
   .grid-4 {
     grid-template-columns: 1fr;
     gap: 12px;
