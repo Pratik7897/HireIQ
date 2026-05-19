@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { initials, nameToHue } from '@/lib/utils';
 
 interface AvatarProps {
@@ -177,21 +177,37 @@ interface SpinnerProps {
   color?: string;
 }
 
-export function Spinner({ size = 16, color = 'var(--accent)' }: SpinnerProps) {
+export function Spinner({ size = 20, color = 'var(--text-muted)' }: SpinnerProps) {
   return (
-    <span
-      style={{
-        display: 'inline-block',
-        width: size,
-        height: size,
-        border: `2px solid ${color}`,
-        borderTopColor: 'transparent',
-        borderRadius: '50%',
-        animation: 'spin 0.6s linear infinite',
-        flexShrink: 0,
-      }}
-      aria-label="Loading"
-      role="status"
-    />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'spin 1s linear infinite' }}>
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+    </svg>
+  );
+}
+
+export function Tooltip({ children, text }: { children: ReactNode; text: string }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div
+      style={{ position: 'relative', display: 'inline-flex' }}
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+    >
+      {children}
+      {show && text && (
+        <div style={{
+          position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)',
+          marginBottom: 8, padding: '4px 8px', background: '#1F2937', color: '#fff',
+          fontSize: 11, borderRadius: 4, whiteSpace: 'nowrap', zIndex: 50,
+          pointerEvents: 'none', animation: 'slideUp 0.1s ease',
+        }}>
+          {text}
+          <div style={{
+            position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)',
+            borderWidth: 4, borderStyle: 'solid', borderColor: '#1F2937 transparent transparent transparent'
+          }} />
+        </div>
+      )}
+    </div>
   );
 }
