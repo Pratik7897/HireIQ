@@ -16,9 +16,20 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <ToastProvider>
+      <a
+        href="#main-content"
+        style={{
+          position: 'absolute', top: -40, left: 0, background: 'var(--accent)', color: 'white',
+          padding: '8px 16px', zIndex: 9999, transition: 'top 0.2s'
+        }}
+        onFocus={(e) => (e.currentTarget.style.top = '0px')}
+        onBlur={(e) => (e.currentTarget.style.top = '-40px')}
+      >
+        Skip to main content
+      </a>
       <div className="app-layout">
         <Sidebar mobileOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
-        <main className="main-content">
+        <main id="main-content" className="main-content" tabIndex={-1} style={{ outline: 'none' }}>
           {/* Mobile Header (only visible on small screens) */}
           <div className="mobile-header">
             <button
