@@ -34,6 +34,7 @@ assert('clamp clamps values above maximum', clamp(25, 10, 20) === 20);
 assert('clamp preserves values within range', clamp(15, 10, 20) === 15);
 assert('clamp handles negative inputs correctly', clamp(-5, 0, 10) === 0);
 assert('clamp handles equal range bounds correctly', clamp(5, 5, 5) === 5);
+assert('clamp handles extreme range boundaries correctly', clamp(1000000, 0, 100) === 100);
 
 // 3. scoreColor tests
 assert('scoreColor green for high match score', scoreColor(85) === '#22c55e');
