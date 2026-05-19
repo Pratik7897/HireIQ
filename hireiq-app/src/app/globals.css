@@ -515,7 +515,7 @@ hr { border: none; border-top: 1px solid #E5E7EB; }
 .skeleton {
   background-color: #F3F4F6;
   border-radius: 4px;
-  animation: pulse 1.5s ease-in-out infinite;
+  animation: pulse 2s ease-in-out infinite;
 }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
 
