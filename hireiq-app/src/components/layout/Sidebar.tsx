@@ -92,6 +92,17 @@ export const Sidebar = React.memo(function Sidebar({ mobileOpen, onClose }: Side
   const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  useEffect(() => {
     fetch('/api/ai-status', { signal: AbortSignal.timeout(4000) })
       .then(r => r.json())
       .then(setAi)
