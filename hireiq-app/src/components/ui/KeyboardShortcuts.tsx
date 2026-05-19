@@ -80,7 +80,7 @@ export function KeyboardShortcuts() {
       >
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ fontSize: 16, fontWeight: 600 }}>Keyboard Shortcuts</h3>
-          <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>×</button>
+          <button onClick={() => setOpen(false)} aria-label="Close shortcuts" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>×</button>
         </div>
         
         <div style={{ padding: 20 }}>

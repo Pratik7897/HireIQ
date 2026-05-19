@@ -52,7 +52,7 @@ export function EmailTemplateModal({ open, onClose, candidateName, candidateEmai
       <div className="card card-pad" style={{ width: '100%', maxWidth: 600, animation: 'slideUp 0.2s ease' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
           <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Compose Email</h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: '#9CA3AF' }}>×</button>
+          <button onClick={onClose} aria-label="Close template modal" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: '#9CA3AF' }}>×</button>
         </div>
 
         <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>

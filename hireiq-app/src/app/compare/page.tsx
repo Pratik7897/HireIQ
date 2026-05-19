@@ -72,7 +72,7 @@ export default function ComparePage() {
             {candidates.map(c => (
               <div key={c.id} style={{ width: 280, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 24 }}>
                 <div className="card card-pad" style={{ height: 120, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', position: 'relative' }}>
-                  <button style={{ position: 'absolute', top: 8, right: 8, background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>×</button>
+                  <button onClick={() => {/* remove */}} aria-label={`Remove ${c.name} from comparison`} style={{ position: 'absolute', top: 8, right: 8, background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>×</button>
                   <Avatar name={c.name} size={48} />
                   <div style={{ fontWeight: 600, marginTop: 8 }}>{c.name}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{c.email}</div>

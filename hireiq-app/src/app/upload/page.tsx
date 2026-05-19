@@ -91,7 +91,7 @@ export default function UploadResumePage() {
               </svg>
               <span style={{ flex: 1, fontSize: 13, color: 'var(--text-primary)' }}>{f.name}</span>
               <span style={{ fontSize: 11, color: 'var(--text-muted)', marginRight: 8 }}>{(f.size / 1024).toFixed(0)} KB</span>
-              <button onClick={() => removeFile(i)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0, fontSize: 16, lineHeight: 1 }}>×</button>
+              <button onClick={() => removeFile(i)} aria-label={`Remove ${f.name}`} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0, fontSize: 16, lineHeight: 1 }}>×</button>
             </div>
           ))}
         </div>
