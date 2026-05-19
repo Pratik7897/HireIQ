@@ -4,9 +4,14 @@ This document describes the API endpoints available within the HireIQ recruitmen
 
 ---
 
-## 🔐 Authentication
+## 🔐 Authentication & Headers
 
-All API calls must be authenticated via Supabase session cookies or authorization headers. In local development or testing mode, fake data or direct database access is used for robust performance.
+All API calls must be authenticated via Supabase session cookies or authorization headers.
+
+### Standard Response Headers
+*   `Content-Type`: `application/json; charset=utf-8`
+*   `Cache-Control`: `no-store, max-age=0, must-revalidate` (for all real-time scoring data)
+*   `X-Content-Type-Options`: `nosniff` (security hardening)
 
 ---
 
