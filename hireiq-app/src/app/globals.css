@@ -125,6 +125,7 @@ body {
   .sidebar {
     position: fixed;
     transform: translateX(-100%);
+    z-index: 100;
   }
   .sidebar.mobile-open {
     transform: translateX(0);
@@ -133,7 +134,15 @@ body {
     display: flex;
   }
   .page {
-    padding: 24px 20px 40px;
+    padding: 20px 16px 40px;
+  }
+  .grid-4 {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .grid-2 {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 }
 
