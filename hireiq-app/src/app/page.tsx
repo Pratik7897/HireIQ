@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Sparkline } from '@/components/ui/Sparkline';
 
 interface Stats {
   totalCandidates: number; totalJobs: number;
@@ -39,18 +40,25 @@ export default function DashboardPage() {
       {/* Stats */}
       <div className="grid-4" style={{ marginBottom: 24 }}>
         {[
-          { label: 'Total candidates', value: stats?.totalCandidates ?? '—' },
-          { label: 'Job descriptions', value: stats?.totalJobs ?? '—' },
-          { label: 'Avg match score', value: stats ? `${stats.avgMatchScore}%` : '—' },
-          { label: 'Bias flags', value: stats?.totalBiasFlags ?? '—' },
+          { label: 'Total candidates', value: stats?.totalCandidates ?? '—', trend: [10, 25, 40, 35, 60, 55, 80] },
+          { label: 'Job descriptions', value: stats?.totalJobs ?? '—', trend: [2, 3, 3, 5, 5, 8, 10], color: '#3B82F6', fill: '#DBEAFE' },
+          { label: 'Avg match score', value: stats ? `${stats.avgMatchScore}%` : '—', trend: [40, 45, 60, 75, 70, 82, 85], color: '#10B981', fill: '#D1FAE5' },
+          { label: 'Bias flags', value: stats?.totalBiasFlags ?? '—', trend: [15, 12, 10, 5, 8, 3, 2], color: '#F59E0B', fill: '#FEF3C7' },
         ].map(s => (
-          <div key={s.label} className="card card-pad">
-            {loading ? (
-              <div className="skeleton" style={{ height: 28, width: 60, marginBottom: 6 }} />
-            ) : (
-              <div className="stat-value">{s.value}</div>
+          <div key={s.label} className="card card-pad" style={{ position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              {loading ? (
+                <div className="skeleton" style={{ height: 28, width: 60, marginBottom: 6 }} />
+              ) : (
+                <div className="stat-value">{s.value}</div>
+              )}
+              <div className="stat-label">{s.label}</div>
+            </div>
+            {!loading && s.trend && (
+              <div style={{ position: 'absolute', bottom: 0, right: 0, left: 0, opacity: 0.8, pointerEvents: 'none' }}>
+                <Sparkline data={s.trend} width={200} height={40} color={s.color} fill={s.fill} />
+              </div>
             )}
-            <div className="stat-label">{s.label}</div>
           </div>
         ))}
       </div>
