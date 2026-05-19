@@ -131,8 +131,17 @@ export const Sidebar = React.memo(function Sidebar({ mobileOpen, onClose }: Side
       <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
       {/* Logo */}
       <div style={{ padding: '16px 14px 12px', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 16, background: 'var(--accent)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 500 }}>
+            HR
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Sarah Team</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Free Plan</div>
+          </div>
+        </div>
         <Link href="/" style={{ textDecoration: 'none' }}>
-          <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+          <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '-0.01em', marginTop: 12 }}>
             HireIQ
           </div>
           <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
@@ -216,23 +225,45 @@ export const Sidebar = React.memo(function Sidebar({ mobileOpen, onClose }: Side
 
 
       {/* Footer status */}
-      <div style={{ padding: '10px 14px', borderTop: '1px solid var(--border)' }}>
-        {/* AI backend status */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-          <div
-            className="status-dot"
-            style={{
-              background: ai === null ? '#D1D5DB' : ai.available ? '#22c55e' : '#ef4444',
-            }}
-          />
-          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-            {ai === null ? 'Checking AI...' : ai.available ? `AI backend · ${ai.ollama_available ? 'Mistral' : 'spaCy'}` : 'AI offline — run start.sh'}
-          </span>
+      <div style={{ padding: '10px 14px', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          {/* AI backend status */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+            <div
+              className="status-dot"
+              style={{
+                background: ai === null ? '#D1D5DB' : ai.available ? '#22c55e' : '#ef4444',
+              }}
+            />
+            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+              {ai === null ? 'Checking AI...' : ai.available ? `AI backend · ${ai.ollama_available ? 'Mistral' : 'spaCy'}` : 'AI offline — run start.sh'}
+            </span>
+          </div>
+          {/* Phase indicator */}
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', letterSpacing: '0.02em' }}>
+            HireIQ · v4.0
+          </div>
         </div>
-        {/* Phase indicator */}
-        <div style={{ fontSize: 11, color: 'var(--text-muted)', letterSpacing: '0.02em' }}>
-          HireIQ · v4.0
-        </div>
+        <button
+          onClick={() => {
+            if (document.documentElement.classList.contains('dark')) {
+              document.documentElement.classList.remove('dark');
+              localStorage.theme = 'light';
+            } else {
+              document.documentElement.classList.add('dark');
+              localStorage.theme = 'dark';
+            }
+          }}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: 'var(--text-muted)', display: 'flex', padding: 4
+          }}
+          aria-label="Toggle dark mode"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
       </div>
     </aside>
     </>

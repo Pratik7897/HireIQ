@@ -6,9 +6,12 @@
 @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pulse   { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
 
-/* ── Hard reset: force light mode regardless of OS/browser preference ── */
-:root, html, body {
-  color-scheme: light !important;
+/* ── Color scheme preference ── */
+:root {
+  color-scheme: light;
+}
+.dark {
+  color-scheme: dark;
 }
 
 *, *::before, *::after {
@@ -38,11 +41,27 @@
   --radius-full:    9999px;
 }
 
+.dark {
+  --bg-page:        #111827;
+  --bg-card:        #1F2937;
+  --bg-sidebar:     #1F2937;
+  --bg-hover:       #374151;
+  --bg-hover-dark:  #4B5563;
+  --border:         #374151;
+  --border-input:   #4B5563;
+  --text-primary:   #F9FAFB;
+  --text-secondary: #D1D5DB;
+  --text-muted:     #9CA3AF;
+  --accent:         #65A30D;
+  --accent-hover:   #4D7C0F;
+  --accent-light:   #3F6212;
+}
+
 /* ── Base ── */
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #FAFAFA !important;
+  background-color: var(--bg-page);
   height: 100%;
 }
 
@@ -51,9 +70,10 @@ body {
   font-size: 13px;
   font-weight: 400;
   line-height: 1.5;
-  color: #374151 !important;
-  background-color: #FAFAFA !important;
+  color: var(--text-primary);
+  background-color: var(--bg-page);
   min-height: 100%;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 /* ── Layout: CSS Grid (no position:fixed bugs) ── */
