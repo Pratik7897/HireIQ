@@ -46,6 +46,9 @@ Retrieve candidates currently uploaded to the workspace.
 #### `GET /api/candidates/[id]`
 Retrieve detailed profile, parsed resume metadata, and scoring records for a candidate.
 
+*   **Property Specifications (`parsed_json`):**
+    *   `skills` (string[]): List of detected technical skills.
+    *   `experience` (object[]): List of employment history containing `title`, `company`, `duration`, and descriptions.
 *   **Response (200 OK):**
     ```json
     {
