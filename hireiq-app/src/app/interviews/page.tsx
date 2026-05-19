@@ -171,8 +171,12 @@ export default function InterviewsPage() {
 function InterviewCard({ interview }: { interview: Interview }) {
   const isPast = new Date(interview.scheduled_at) < new Date();
   return (
-    <div className="card card-pad" style={{ opacity: interview.status === 'cancelled' ? 0.6 : 1 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <Link href={`/interviews/${interview.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <div className="card card-pad" style={{ opacity: interview.status === 'cancelled' ? 0.6 : 1, transition: 'background 0.15s' }}
+        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
+        onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-card)'}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <Avatar name={interview.candidate_name} size={36} />
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
@@ -197,11 +201,12 @@ function InterviewCard({ interview }: { interview: Interview }) {
         </div>
       </div>
       {interview.notes && (
-        <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)', padding: '6px 10px', background: '#F9FAFB', borderRadius: 4 }}>
+        <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)', padding: '6px 10px', background: 'var(--bg-hover)', borderRadius: 4 }}>
           {interview.notes}
         </div>
       )}
-    </div>
+      </div>
+    </Link>
   );
 }
 
