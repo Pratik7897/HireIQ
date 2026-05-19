@@ -133,6 +133,9 @@ export default function CandidateDetailPage({ params }: { params: Promise<{ id: 
                 ✉ Email
               </a>
             )}
+            <Link href={`/interviews?candidate=${candidate.id}`} className="btn btn-primary btn-sm">
+              Schedule
+            </Link>
             {candidate.file_url && (
               <a
                 href={candidate.file_url}
