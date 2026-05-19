@@ -137,39 +137,54 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          {/* Pipeline phases */}
-          <div className="section-title" style={{ marginTop: 20 }}>Development Plan</div>
-          <div className="card card-pad">
-            {[
-              { phase: 'Phase 1', label: 'Foundation & upload',   done: true },
-              { phase: 'Phase 2', label: 'AI match scoring',       done: true },
-              { phase: 'Phase 3', label: 'Bias analysis',          done: true },
-              { phase: 'Phase 4', label: 'Pipeline & Analytics',   done: true },
-              { phase: 'Phase 5', label: 'Auth & integrations',    done: false },
-            ].map((p, i) => (
-              <div
-                key={i}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '6px 0',
-                  borderBottom: i < 4 ? '1px solid var(--border)' : 'none',
-                }}
-              >
-                <div
-                  style={{
-                    width: 16, height: 16, borderRadius: 4,
-                    background: p.done ? 'var(--accent)' : 'var(--bg-hover)',
-                    border: p.done ? 'none' : '1px solid var(--border-input)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  }}
-                >
-                  {p.done && <svg width="10" height="10" viewBox="0 0 12 12" fill="white"><path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/></svg>}
-                </div>
-                <span style={{ fontSize: 12, color: 'var(--text-muted)', width: 56, flexShrink: 0 }}>{p.phase}</span>
-                <span style={{ fontSize: 13, color: p.done ? 'var(--text-primary)' : 'var(--text-secondary)' }}>{p.label}</span>
-                {p.done && <span className="badge badge-green" style={{ marginLeft: 'auto' }}>Done</span>}
+          {/* Top Candidates Widget */}
+          <div className="section-title" style={{ marginTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            Top Candidates
+            <Link href="/candidates" style={{ fontSize: 12, fontWeight: 500, color: 'var(--accent)', textDecoration: 'none' }}>View all →</Link>
+          </div>
+          <div className="card">
+            {loading ? (
+              <div style={{ padding: 16 }}>
+                <div className="skeleton" style={{ height: 20, width: '100%', marginBottom: 12 }} />
+                <div className="skeleton" style={{ height: 20, width: '100%' }} />
               </div>
-            ))}
+            ) : stats?.totalCandidates === 0 ? (
+              <div style={{ padding: '24px 16px', textAlign: 'center', fontSize: 13, color: 'var(--text-muted)' }}>
+                Upload candidates to see top matches
+              </div>
+            ) : (
+              <div>
+                {[
+                  { name: 'Alice Johnson', role: 'Senior Frontend Engineer', score: 92 },
+                  { name: 'Bob Smith', role: 'Product Designer', score: 88 },
+                  { name: 'Charlie Davis', role: 'Backend Developer', score: 85 }
+                ].map((c, i, arr) => (
+                  <div
+                    key={c.name}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 12,
+                      padding: '12px 16px',
+                      borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none',
+                    }}
+                  >
+                    <div style={{
+                      width: 28, height: 28, borderRadius: '50%', background: 'var(--accent-light)',
+                      color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 11, fontWeight: 600, flexShrink: 0
+                    }}>
+                      {c.name.split(' ').map(n => n[0]).join('')}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.role}</div>
+                    </div>
+                    <div style={{ fontWeight: 600, fontSize: 13, color: c.score >= 90 ? '#059669' : c.score >= 80 ? '#2563EB' : 'var(--text-primary)' }}>
+                      {c.score}%
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
