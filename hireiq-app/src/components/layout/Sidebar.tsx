@@ -166,9 +166,19 @@ export function Sidebar() {
             key={item.href}
             href={item.href}
             className={`nav-item ${pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href)) ? 'active' : ''}`}
+            style={{ position: 'relative' }}
           >
             {Icons[item.icon as keyof typeof Icons]}
             {item.label}
+            {item.href === '/inbox' && (
+              <span style={{
+                position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                background: 'var(--accent)', color: 'white', fontSize: 10, fontWeight: 600,
+                padding: '2px 6px', borderRadius: 10, lineHeight: 1
+              }}>
+                1
+              </span>
+            )}
           </Link>
         ))}
 
