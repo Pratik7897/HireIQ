@@ -3,7 +3,7 @@
  * A lightweight test suite executing unit tests for shared recruitment utility functions.
  */
 
-import { fmtDate, clamp, scoreColor, initials, fmtRelative } from './utils';
+import { fmtDate, clamp, scoreColor, initials, fmtRelative, seniorityLabel } from './utils';
 
 let passed = 0;
 let failed = 0;
@@ -44,6 +44,11 @@ assert('scoreColor red for low match score', scoreColor(20) === '#ef4444');
 assert('initials extracts correct two-word initials', initials('Jane Doe') === 'JD');
 assert('initials extracts single initial for one word', initials('Alexander') === 'A');
 assert('initials returns question mark for empty string', initials('') === '?');
+
+// 5. seniorityLabel tests
+assert('seniorityLabel formats mid seniority correctly', seniorityLabel('mid') === 'Mid level');
+assert('seniorityLabel formats entry level correctly', seniorityLabel('entry') === 'Entry level');
+assert('seniorityLabel formats unknown keys as fallback', seniorityLabel('custom') === 'custom');
 
 console.log(`\n🎉 Test Run Complete: ${passed} passed, ${failed} failed.`);
 
