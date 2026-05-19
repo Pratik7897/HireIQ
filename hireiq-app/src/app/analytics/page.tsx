@@ -110,29 +110,56 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        {/* AI Efficiency */}
-        <div className="card card-pad">
-          <div className="section-title">AI Screening Efficiency</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
-            <div style={{ padding: '16px', background: '#F9FAFB', borderRadius: 8, border: '1px solid #E5E7EB' }}>
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>Shortlist Rate</div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                <span style={{ fontSize: 24, fontWeight: 600 }}>{shortlistRate}%</span>
-                <span style={{ fontSize: 12, color: '#3B6D11' }}>Avg match score {'>'} 70%</span>
+        {/* AI Efficiency & Bias Analysis */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div className="card card-pad">
+            <div className="section-title">AI Screening Efficiency</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
+              <div style={{ padding: '16px', background: '#F9FAFB', borderRadius: 8, border: '1px solid #E5E7EB' }}>
+                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>Shortlist Rate</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                  <span style={{ fontSize: 24, fontWeight: 600 }}>{shortlistRate}%</span>
+                  <span style={{ fontSize: 12, color: '#3B6D11' }}>Avg match score {'>'} 70%</span>
+                </div>
               </div>
-            </div>
 
-            <div style={{ padding: '16px', background: '#F9FAFB', borderRadius: 8, border: '1px solid #E5E7EB' }}>
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>Time Saved (Estimated)</div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                <span style={{ fontSize: 24, fontWeight: 600 }}>~{Math.round(data.totalCandidates * 5 / 60)} hrs</span>
-                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>based on 5 mins per manual review</span>
+              <div style={{ padding: '16px', background: '#F9FAFB', borderRadius: 8, border: '1px solid #E5E7EB' }}>
+                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>Time Saved (Estimated)</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                  <span style={{ fontSize: 24, fontWeight: 600 }}>~{Math.round(data.totalCandidates * 5 / 60)} hrs</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>based on 5 mins per manual review</span>
+                </div>
               </div>
+              
+              <button className="btn btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
+                Export Full Report (CSV)
+              </button>
             </div>
-            
-            <button className="btn btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
-              Export Full Report (CSV)
-            </button>
+          </div>
+
+          <div className="card card-pad">
+            <div className="section-title">Bias Flags by Category</div>
+            <div style={{ marginTop: 16 }}>
+              {[
+                { label: 'Gender Bias', count: 6, color: '#DC2626' },
+                { label: 'Age Bias', count: 4, color: '#F59E0B' },
+                { label: 'Culture Fit Vagueness', count: 3, color: '#3B82F6' },
+                { label: 'Education Gatekeeping', count: 1, color: '#8B5CF6' }
+              ].map(b => {
+                const pct = Math.round((b.count / data.biasFlagsCount) * 100);
+                return (
+                  <div key={b.label} style={{ marginBottom: 12 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
+                      <span style={{ fontWeight: 500 }}>{b.label}</span>
+                      <span style={{ color: 'var(--text-muted)' }}>{b.count} flags</span>
+                    </div>
+                    <div style={{ width: '100%', height: 6, background: '#F3F4F6', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ width: `${pct}%`, height: '100%', background: b.color, borderRadius: 3 }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
