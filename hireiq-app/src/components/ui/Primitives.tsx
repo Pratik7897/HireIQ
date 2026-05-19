@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useState, useEffect, useRef } from 'react';
 import { initials, nameToHue } from '@/lib/utils';
 
 interface AvatarProps {
@@ -77,9 +77,10 @@ interface ScoreBarProps {
 }
 
 export function ScoreBar({ score, max = 100, height = 6, animate = true }: ScoreBarProps) {
-  const [width, setWidth] = useState(0);
   const pct = Math.min(100, Math.max(0, (score / max) * 100));
-  const color = pct >= 80 ? '#3B6D11' : pct >= 50 ? '#F59E0B' : '#DC2626';
+  const color = pct >= 80 ? '#3b6d11' : pct >= 50 ? '#f59e0b' : '#dc2626';
+
+  const [width, setWidth] = useState(animate ? 0 : pct);
 
   useEffect(() => {
     if (animate) {

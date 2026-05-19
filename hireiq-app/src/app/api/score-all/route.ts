@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
         const exp = candidate.total_years_experience || parsed.total_years_experience || 0;
 
         // Get/generate candidate embedding
-        let candEmbedding: number[] = (candidate.resume_embedding as number[]) || [];
+        const candEmbedding: number[] = (candidate.resume_embedding as number[]) || [];
         if (!candEmbedding.length) {
           // Generate embedding from skills + name
           const embedText = `${parsed.name || ''} ${skills.join(' ')} ${
