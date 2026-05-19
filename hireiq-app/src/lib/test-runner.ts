@@ -23,6 +23,8 @@ console.log('⚡ Starting HireIQ Utility Tests...\n');
 // 1. fmtDate tests
 assert('fmtDate correctly formats valid ISO date', fmtDate('2026-05-18') === 'May 18, 2026');
 assert('fmtDate returns em dash for null/undefined/empty string', fmtDate(null) === '—');
+assert('fmtDate handles undefined values correctly', fmtDate(undefined) === '—');
+assert('fmtDate handles empty string values correctly', fmtDate('') === '—');
 assert('fmtRelative returns em dash for null value', fmtRelative(null) === '—');
 assert('fmtRelative handles current time correctly', fmtRelative(new Date().toISOString()) === 'just now');
 
