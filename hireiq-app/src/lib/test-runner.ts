@@ -3,7 +3,7 @@
  * A lightweight test suite executing unit tests for shared recruitment utility functions.
  */
 
-import { fmtDate, clamp, scoreColor, initials, fmtRelative, seniorityLabel } from './utils';
+import { fmtDate, clamp, scoreColor, initials, fmtRelative, seniorityLabel, statusLabel, statusBadgeClass } from './utils';
 
 let passed = 0;
 let failed = 0;
@@ -49,6 +49,12 @@ assert('initials returns question mark for empty string', initials('') === '?');
 assert('seniorityLabel formats mid seniority correctly', seniorityLabel('mid') === 'Mid level');
 assert('seniorityLabel formats entry level correctly', seniorityLabel('entry') === 'Entry level');
 assert('seniorityLabel formats unknown keys as fallback', seniorityLabel('custom') === 'custom');
+
+// 6. pipeline status label and badge class tests
+assert('statusLabel formats screening correctly', statusLabel('screening') === 'Screening');
+assert('statusLabel returns fallback for unknown key', statusLabel('unknown_key') === 'unknown_key');
+assert('statusBadgeClass returns red badge for rejected', statusBadgeClass('rejected') === 'badge-red');
+assert('statusBadgeClass returns gray badge for default fallback', statusBadgeClass('ghost_status') === 'badge-gray');
 
 console.log(`\n🎉 Test Run Complete: ${passed} passed, ${failed} failed.`);
 
