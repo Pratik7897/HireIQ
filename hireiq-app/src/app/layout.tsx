@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { ToastProvider } from '@/components/ui/Toast';
+import { ClientLayout } from '@/components/layout/ClientLayout';
 
 export const metadata: Metadata = {
   title: { default: 'HireIQ', template: '%s · HireIQ' },
@@ -26,14 +25,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body style={{ colorScheme: 'light', backgroundColor: '#FAFAFA', color: '#374151' }}>
-        <ToastProvider>
-          <div className="app-layout">
-            <Sidebar />
-            <main className="main-content">
-              {children}
-            </main>
-          </div>
-        </ToastProvider>
+        <ClientLayout>
+          {children}
+        </ClientLayout>
       </body>
     </html>
   );

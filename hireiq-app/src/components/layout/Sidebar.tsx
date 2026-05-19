@@ -85,7 +85,7 @@ import { SearchModal } from '@/components/ui/SearchModal';
 
 interface AIStatus { available: boolean; ollama_available?: boolean }
 
-export function Sidebar() {
+export function Sidebar({ mobileOpen, onClose }: { mobileOpen?: boolean; onClose?: () => void }) {
   const pathname = usePathname();
   const [ai, setAi] = useState<AIStatus | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -121,7 +121,13 @@ export function Sidebar() {
   return (
     <>
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
-      <aside className="sidebar">
+      {mobileOpen && (
+        <div
+          onClick={onClose}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 90 }}
+        />
+      )}
+      <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
       {/* Logo */}
       <div style={{ padding: '16px 14px 12px', borderBottom: '1px solid var(--border)' }}>
         <Link href="/" style={{ textDecoration: 'none' }}>
