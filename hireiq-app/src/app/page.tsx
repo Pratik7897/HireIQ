@@ -20,6 +20,12 @@ export default function DashboardPage() {
   const [activity, setActivity] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const topCandidates = [
+    { name: 'Alice Johnson', role: 'Senior Frontend Engineer', score: 92 },
+    { name: 'Bob Smith', role: 'Product Designer', score: 88 },
+    { name: 'Charlie Davis', role: 'Backend Developer', score: 85 }
+  ];
+
   useEffect(() => {
     fetch('/api/analytics')
       .then(r => r.json())
@@ -155,7 +161,6 @@ export default function DashboardPage() {
           )}
 
           {/* Quick links */}
-          <div>
           <div className="section-title">Quick actions</div>
           <div className="card" style={{ padding: 0 }}>
             {[
@@ -208,11 +213,7 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div>
-                {[
-                  { name: 'Alice Johnson', role: 'Senior Frontend Engineer', score: 92 },
-                  { name: 'Bob Smith', role: 'Product Designer', score: 88 },
-                  { name: 'Charlie Davis', role: 'Backend Developer', score: 85 }
-                ].map((c, i, arr) => (
+                {topCandidates.map((c, i, arr) => (
                   <div
                     key={c.name}
                     style={{

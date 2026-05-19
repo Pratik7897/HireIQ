@@ -13,6 +13,7 @@ interface ScoreEntry {
 interface Job {
   id: string; title: string; department: string | null; seniority_level: string | null;
   required_skills: string[]; preferred_skills: string[]; summary: string | null; created_at: string;
+  status?: string;
 }
 
 function ScoreBar({ score }: { score: number }) {

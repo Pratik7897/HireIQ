@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 // Minimal inline SVG icons (Tabler-style outline)
 const Icons = {
@@ -279,4 +279,4 @@ export const Sidebar = React.memo(function Sidebar({ mobileOpen, onClose }: Side
     </aside>
     </>
   );
-}
+});
