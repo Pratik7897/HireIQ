@@ -3,7 +3,7 @@
  * A lightweight test suite executing unit tests for shared recruitment utility functions.
  */
 
-import { fmtDate, clamp, scoreColor, initials } from './utils';
+import { fmtDate, clamp, scoreColor, initials, fmtRelative } from './utils';
 
 let passed = 0;
 let failed = 0;
@@ -23,6 +23,8 @@ console.log('⚡ Starting HireIQ Utility Tests...\n');
 // 1. fmtDate tests
 assert('fmtDate correctly formats valid ISO date', fmtDate('2026-05-18') === 'May 18, 2026');
 assert('fmtDate returns em dash for null/undefined/empty string', fmtDate(null) === '—');
+assert('fmtRelative returns em dash for null value', fmtRelative(null) === '—');
+assert('fmtRelative handles current time correctly', fmtRelative(new Date().toISOString()) === 'just now');
 
 // 2. clamp tests
 assert('clamp clamps values below minimum', clamp(5, 10, 20) === 10);
