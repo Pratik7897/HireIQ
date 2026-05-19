@@ -49,6 +49,13 @@ export default function SettingsPage() {
     autoDeleteRejected: false,
   });
 
+  const [notifications, setNotifications] = useState({
+    emailOnNewCandidate: true,
+    emailOnHighMatch: true,
+    emailOnInterviewScheduled: true,
+    slackIntegrationEnabled: false,
+  });
+
   const save = async () => {
     setSaving(true);
     await new Promise(r => setTimeout(r, 800)); // Simulate API call
@@ -60,11 +67,12 @@ export default function SettingsPage() {
   const weightsValid = total === 100;
 
   const SECTIONS = [
-    { id: 'scoring',   label: 'Scoring weights' },
-    { id: 'bias',      label: 'Bias detection' },
-    { id: 'profile',   label: 'Organization' },
-    { id: 'retention', label: 'Data retention' },
-    { id: 'api',       label: 'API & integrations' },
+    { id: 'scoring',       label: 'Scoring weights' },
+    { id: 'bias',          label: 'Bias detection' },
+    { id: 'profile',       label: 'Organization' },
+    { id: 'notifications', label: 'Notifications' },
+    { id: 'retention',     label: 'Data retention' },
+    { id: 'api',           label: 'API & integrations' },
   ];
 
   return (
@@ -221,6 +229,63 @@ export default function SettingsPage() {
                   <option value="Europe/Paris">Europe/Paris (CET, +1:00)</option>
                   <option value="Asia/Singapore">Asia/Singapore (SGT, +8:00)</option>
                 </select>
+              </div>
+            </div>
+          )}
+
+          {/* ─── Notifications ─── */}
+          {activeSection === 'notifications' && (
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 4 }}>Notification preferences</div>
+              <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>
+                Control when and how you receive alerts from HireIQ.
+              </p>
+
+              <div className="section-title" style={{ fontSize: 13, marginTop: 16 }}>Email Alerts</div>
+              {[
+                { key: 'emailOnNewCandidate', label: 'New candidate uploaded', desc: 'Receive an email when a new resume is parsed' },
+                { key: 'emailOnHighMatch', label: 'High match score (≥80%)', desc: 'Alert when a candidate scores 80% or higher on a job' },
+                { key: 'emailOnInterviewScheduled', label: 'Interview scheduled', desc: 'Notify when an interview is added to the calendar' },
+              ].map(({ key, label, desc }) => (
+                <div
+                  key={key}
+                  style={{
+                    display: 'flex', alignItems: 'flex-start', gap: 12,
+                    padding: '12px 0', borderBottom: '1px solid var(--border)',
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    id={key}
+                    checked={(notifications as any)[key]}
+                    onChange={e => setNotifications(prev => ({ ...prev, [key]: e.target.checked }))}
+                    style={{ marginTop: 2, cursor: 'pointer', width: 14, height: 14 }}
+                  />
+                  <div>
+                    <label htmlFor={key} style={{ cursor: 'pointer', marginBottom: 2 }}>{label}</label>
+                    <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{desc}</p>
+                  </div>
+                </div>
+              ))}
+
+              <div className="section-title" style={{ fontSize: 13, marginTop: 24 }}>Integrations</div>
+              <div
+                style={{
+                  display: 'flex', alignItems: 'flex-start', gap: 12,
+                  padding: '12px 0', borderBottom: '1px solid var(--border)',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  id="slackIntegrationEnabled"
+                  checked={notifications.slackIntegrationEnabled}
+                  onChange={e => setNotifications(prev => ({ ...prev, slackIntegrationEnabled: e.target.checked }))}
+                  style={{ marginTop: 2, cursor: 'pointer', width: 14, height: 14 }}
+                />
+                <div>
+                  <label htmlFor="slackIntegrationEnabled" style={{ cursor: 'pointer', marginBottom: 2 }}>Enable Slack Notifications</label>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Send pipeline updates directly to a Slack channel</p>
+                </div>
               </div>
             </div>
           )}
