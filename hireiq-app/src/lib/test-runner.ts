@@ -28,6 +28,8 @@ assert('fmtDate returns em dash for null/undefined/empty string', fmtDate(null) 
 assert('clamp clamps values below minimum', clamp(5, 10, 20) === 10);
 assert('clamp clamps values above maximum', clamp(25, 10, 20) === 20);
 assert('clamp preserves values within range', clamp(15, 10, 20) === 15);
+assert('clamp handles negative inputs correctly', clamp(-5, 0, 10) === 0);
+assert('clamp handles equal range bounds correctly', clamp(5, 5, 5) === 5);
 
 // 3. scoreColor tests
 assert('scoreColor green for high match score', scoreColor(85) === '#22c55e');
