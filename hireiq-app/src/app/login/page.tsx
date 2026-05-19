@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { auth, googleProvider, signInWithPopup } from '@/lib/firebase';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -33,15 +34,14 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     
-    const { error: signInError } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-
-    if (signInError) {
-      setError(signInError.message);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const token = await result.user.getIdToken();
+      // Set the token cookie so the middleware proxy can authorize
+      document.cookie = `firebase_token=${token}; path=/; max-age=3600; SameSite=Lax`;
+      router.push('/analytics');
+    } catch (err: any) {
+      setError(err.message);
       setLoading(false);
     }
   };

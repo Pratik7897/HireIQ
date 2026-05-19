@@ -28,11 +28,12 @@ export async function proxy(request: NextRequest) {
   );
 
   const { data: { user } } = await supabase.auth.getUser();
+  const firebaseToken = request.cookies.get('firebase_token')?.value;
 
   const isProtected = request.nextUrl.pathname.startsWith('/analytics') || 
                       request.nextUrl.pathname.startsWith('/upload');
                       
-  if (isProtected && !user) {
+  if (isProtected && !user && !firebaseToken) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
