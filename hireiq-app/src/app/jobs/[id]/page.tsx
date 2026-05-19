@@ -115,6 +115,22 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
         <div>
           <h1 className="page-title">{job.title}</h1>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 4 }}>
+            <button
+              onClick={() => {
+                const isDraft = job.status === 'draft';
+                setJob({ ...job, status: isDraft ? 'active' : 'draft' });
+                // In real app, make API call here
+              }}
+              style={{
+                background: 'transparent', border: 'none', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 4, padding: 0
+              }}
+            >
+              <span className={`badge ${job.status === 'draft' ? 'badge-gray' : 'badge-green'}`} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: job.status === 'draft' ? '#9CA3AF' : '#10B981' }} />
+                {job.status === 'draft' ? 'Paused' : 'Active'}
+              </span>
+            </button>
             {job.department && <span style={{ fontSize: 13, color: '#6B7280' }}>{job.department}</span>}
             {job.seniority_level && <span className="badge badge-gray">{job.seniority_level}</span>}
           </div>
