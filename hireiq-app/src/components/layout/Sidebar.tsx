@@ -84,8 +84,9 @@ const nav = [
 import { SearchModal } from '@/components/ui/SearchModal';
 
 interface AIStatus { available: boolean; ollama_available?: boolean }
+interface SidebarProps { mobileOpen?: boolean; onClose?: () => void }
 
-export function Sidebar({ mobileOpen, onClose }: { mobileOpen?: boolean; onClose?: () => void }) {
+export const Sidebar = React.memo(function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const [ai, setAi] = useState<AIStatus | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
